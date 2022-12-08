@@ -17,7 +17,12 @@ public class ApplicationWindow {
         informationPage = new InformationPage();
         playbackPage = new PlaybackPage();
 
-        frame = welcomePage.getFrame();
+        frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(true);
+        frame.setSize(800, 600);
+        frame.add(welcomePage.getPanel());
+        frame.setVisible(true);
     }
 
 }

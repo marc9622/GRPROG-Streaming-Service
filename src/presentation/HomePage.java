@@ -1,21 +1,17 @@
 package presentation;
 
-import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class HomePage {
     
-    private JFrame frame;
+    private JPanel panel;
 
     public HomePage() {
-        frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        panel = new JPanel();
     }
 
-    public JFrame getFrame() {
-        return frame;
+    public JPanel getPanel() {
+        return panel;
     }
 
 }

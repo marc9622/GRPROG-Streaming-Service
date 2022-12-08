@@ -12,7 +12,9 @@ import static javax.swing.JPanel.*;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class WelcomePage {
     
@@ -84,17 +86,17 @@ public class WelcomePage {
             // Adds the buttons to the panel
             for(int i = 0; i < userButtons.length; i++) {
 
-                panel.add(userButtons[i]);
+                this.add(userButtons[i]);
 
                 // Adds a filler between the buttons
                 if (i < userButtons.length - 1)
-                    panel.add(new Filler(new Dimension(10, 0), new Dimension(25, 0), new Dimension(50, 0)));
+                    this.add(new Filler(new Dimension(10, 0), new Dimension(25, 0), new Dimension(50, 0)));
             }
 
             // Sets the layout of the panel
-            BoxLayout layout = new BoxLayout(panel, BoxLayout.X_AXIS);
-            panel.setLayout(layout);
-            panel.setAlignmentY(CENTER_ALIGNMENT);
+            BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+            this.setLayout(layout);
+            this.setAlignmentY(CENTER_ALIGNMENT);
 
             // Sets the size of the panel
 

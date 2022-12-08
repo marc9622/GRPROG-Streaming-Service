@@ -3,6 +3,7 @@ package presentation;
 import javax.swing.JFrame;
 
 import domain.User;
+import presentation.WelcomePage.UserListButtons.UserButton;
 
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -90,7 +91,11 @@ public class ApplicationWindow implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(e.getSource() instanceof UserButton button) {
+            String username = button.username;
+            System.out.println(username);
+        }
+        else throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

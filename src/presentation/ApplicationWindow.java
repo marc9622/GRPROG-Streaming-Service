@@ -17,7 +17,7 @@ public class ApplicationWindow {
         informationPage = new InformationPage();
         playbackPage = new PlaybackPage();
 
-        
+        frame = welcomePage.getFrame();
     }
 
 }

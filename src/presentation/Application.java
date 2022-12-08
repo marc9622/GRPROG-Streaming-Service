@@ -9,7 +9,7 @@ public class Application {
 
     public Application() {
         data = new ApplicationData();
-        window = new ApplicationWindow();
+        window = new ApplicationWindow(data.getUsers());
     }
 
 }

@@ -1,5 +1,5 @@
 package domain;
 
-public class Series {
+public class Series extends Media {
     
 }

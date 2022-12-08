@@ -1,5 +1,5 @@
 package domain;
 
-public class Movie {
+public class Movie extends Media {
     
 }

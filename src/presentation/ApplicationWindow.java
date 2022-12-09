@@ -32,8 +32,7 @@ public class ApplicationWindow implements ActionListener {
         // Create the frame
         frame = new JFrame();
 
-        // Initialize the frame
-        {
+        { // Initialize the frame
             // Get the screen size
             Rectangle screenSize = frame.getGraphicsConfiguration().getBounds();
 

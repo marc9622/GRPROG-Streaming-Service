@@ -104,7 +104,7 @@ public class MediaParsing {
         int releaseYear = 0;
         boolean isEnded = false;
         int endYear = 0;
-        List<Movie.Category> categories = new ArrayList<>(4);
+        List<String> categories = new ArrayList<>(4);
         float rating = 0;
         List<Integer> seasonLengths = null;
 
@@ -183,12 +183,12 @@ public class MediaParsing {
 
                 // Parse the category and add it to the list.
                 String categoryString = string.substring(lastParsed, i).strip();
-                Optional<Media.Category> category = Media.Category.fromString(categoryString);
+                
+                // If the name is valid, add it to the list.
+                if(Media.CategoryList.doesNameExist(categoryString))
+                    categories.add(categoryString);
 
-                // If the category is present, add it to the list.
-                if(category.isPresent()) categories.add(category.get());
-
-                // If the category is not present, then it is invalid.
+                // If not, throw an exception.
                 else throw new InvalidStringFormatException("Tried to parse Media, but could not parse category from '" + categoryString + "'.", string);
 
                 // Update the last parsed index.
@@ -291,8 +291,8 @@ public class MediaParsing {
                                                    "but string contained more characters than expected.", string);
 
         // Create the media object and return it.
-        if(!knowItIsSerie) return new Movie(title, releaseYear, categories.toArray(Media.Category[]::new), rating);
-        else               return new Series(title, releaseYear, isEnded, endYear, categories.toArray(Media.Category[]::new), rating,
+        if(!knowItIsSerie) return new Movie(title, releaseYear, categories.toArray(String[]::new), rating);
+        else               return new Series(title, releaseYear, isEnded, endYear, categories.toArray(String[]::new), rating,
                                             seasonLengths.stream().mapToInt(i -> i).toArray());
     }
 

@@ -11,7 +11,8 @@ import java.nio.file.Path;
 public class FileReading {
     
     /** Finds a file in the resources folder, and returns its contents as a String array.
-     * The file is assumed to be encoded in {@code ISO-8859-1}.
+     * The file is assumed to be encoded in {@code ISO-8859-1},
+     * <i>because it contains an 'ä' in that encoding</i>.
      * @param filePath The name of the text file to be read.
      * @return An {@code ISO-8859-1} string array of the contents of the file separated by lines.
      * @throws IOException If an I/O error occurs trying to read from the file.

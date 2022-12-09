@@ -26,7 +26,7 @@ public class Series extends Media {
      * @param rating The rating of the serie.
      * @param seasonLengths The number of episodes per season in order. The indices are therefore the seasons numbers.
      */
-    Series(String title, int releaseYear, boolean isEnded, int endYear, Category[] categories, float rating, int[] seasonLengths) {
+    Series(String title, int releaseYear, boolean isEnded, int endYear, String[] categories, float rating, int[] seasonLengths) {
         super(title, releaseYear, categories, rating);
         this.isEnded = isEnded;
         this.endYear = endYear;
@@ -61,12 +61,15 @@ public class Series extends Media {
     }
 
     public boolean equals(Object obj) {
-        if (obj == this) {
+        if (obj == null)
             return true;
-        }
-        if (!(obj instanceof Series)) {
+
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof Series))
             return false;
-        }
+        
         Series other = (Series) obj;
         return title.equals(other.title) &&
                releaseYear == other.releaseYear &&

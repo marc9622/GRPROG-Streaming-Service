@@ -12,9 +12,7 @@ import static javax.swing.JPanel.*;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class WelcomePage {
     
@@ -28,8 +26,7 @@ public class WelcomePage {
         panel.setLayout(layout);
         panel.setAlignmentX(CENTER_ALIGNMENT);
 
-        // Creates and adds the components to the panel
-        {
+        { // Creates and adds the components to the panel
             Filler topWelcomeFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 250));
             panel.add(topWelcomeFiller);
 
@@ -54,8 +51,7 @@ public class WelcomePage {
             Filler selectUsersFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 100));
             panel.add(selectUsersFiller);
 
-            UserListButtons userListButtons = new UserListButtons(users);
-            userListButtons.addActionListener(selectUserListener);
+            UserListButtons userListButtons = new UserListButtons(users, selectUserListener);
             panel.add(userListButtons);
 
             Filler usersButtomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 400));
@@ -69,18 +65,16 @@ public class WelcomePage {
 
     class UserListButtons extends JPanel {
         
-        //private final Collection<User> users;
-
         private final UserButton[] userButtons;
 
         /** Creates a new user list buttons object. */
-        private UserListButtons(Collection<User> users) {
+        private UserListButtons(Collection<User> users, ActionListener listener) {
             //panel.userList = userList;
 
             // Creates the buttons
             userButtons = users.stream()
                                .sorted()
-                               .map(UserButton::new)
+                               .map(user -> new UserButton(user.getUsername(), listener))
                                .toArray(UserButton[]::new);
             
             // Adds the buttons to the panel
@@ -97,14 +91,6 @@ public class WelcomePage {
             BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
             this.setLayout(layout);
             this.setAlignmentY(CENTER_ALIGNMENT);
-
-            // Sets the size of the panel
-
-        }
-
-        public void addActionListener(ActionListener listener) {
-            for (JButton button : userButtons)
-                button.addActionListener(listener);
         }
 
         class UserButton extends JButton {
@@ -112,12 +98,18 @@ public class WelcomePage {
             public final String username;
     
             /** Creates a new user button object. */
-            private UserButton(User user) {
+            private UserButton(String username, ActionListener listener) {
                 // Sets the username
-                this.username = user.getUsername();
+                this.username = username;
     
                 // Sets the text of the button
                 this.setText(username);
+
+                // Sets the action command of the button
+                this.setActionCommand(username);
+
+                // Adds the listener to the button
+                this.addActionListener(listener);
             }
             
         }

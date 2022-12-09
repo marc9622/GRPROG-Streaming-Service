@@ -12,7 +12,7 @@ public class Movie extends Media {
      * @param categories The categories the movie belongs to.
      * @param rating The rating of the movie.
      */
-    Movie(String title, int releaseYear, Category[] categories, float rating) {
+    Movie(String title, int releaseYear, String[] categories, float rating) {
         super(title, releaseYear, categories, rating);
     }
 
@@ -30,12 +30,15 @@ public class Movie extends Media {
     }
 
     public boolean equals(Object obj) {
-        if (obj == this) {
+        if (obj == null)
             return true;
-        }
-        if (!(obj instanceof Movie)) {
+
+        if (obj == this)
+            return true;
+
+        if (!(obj instanceof Movie))
             return false;
-        }
+
         Movie other = (Movie) obj;
         return title.equals(other.title) &&
                releaseYear == other.releaseYear &&

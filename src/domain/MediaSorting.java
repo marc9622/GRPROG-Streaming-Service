@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /** Effectively functions as a namespace for functions that search for media.
@@ -66,10 +67,13 @@ class MediaSorting {
         }
     }
 
-    /** Similar to {@link #SearchCache} except it scores media categories instead of media.
-     * This does not depend on the media library, and is therefore stored in a private static field.
-    */
-    private static final Map<String, Map<Media.Category, Integer>> searchCategoryCache = new HashMap<>();
+    /** Similar to {@link #SearchCache} except it maps from queries to an array of scores.
+     * The indices of the array correspond to the indices to the media categories.
+     * So if the first int of the array is 5, then the first category has a score of 5, from this query.
+     * Because this cache is for scoring categories, and categories are constant during runtime,
+     * then this cache can be stored locally and statically in this class.
+     */
+    private static final Map<String, int[]> searchCategoryCache = new HashMap<>();
 
     /** The default comparator for comparing Media.
      * First compares by title (alphabetically), then by year (newest first).
@@ -124,33 +128,32 @@ class MediaSorting {
      * @return A map mapping from media to a search score.
      */
     private static Map<Media, Integer> calcSearchScorerByCategory(String query, Set<Media> media) {
-        final Map<Media.Category, Integer> categories;
+        final int[] categoryScores;
 
         // If the query is already in the category cache, use it.
         if(searchCategoryCache.containsKey(query))
-            categories = searchCategoryCache.get(query);
+            categoryScores = searchCategoryCache.get(query);
             
         // Otherwise, calculate how well the query matches each category
         else {
-            categories = Stream.of(Media.Category.values())
-                               .collect(Collectors.toMap(
-                               /* Map Key: */       c -> c, // The map key is the category itself
-                               /* Map Value: */     c -> calcSearchScore(query, c.toString().toLowerCase()) // The map value is the search score
-                               ));
+                                                    // Get the names of all categories
+            categoryScores = Media.CategoryList.names.stream()
+                                                    // Calculate the search score for each category
+                                                     .mapToInt(c -> calcSearchScore(query, c))
+                                                    // Convert the stream to an array
+                                                     .toArray();
             // And add the result to the cache
-            searchCategoryCache.put(query, categories);
+            searchCategoryCache.put(query, categoryScores);
         }
 
         // For each media, calculate the maximum search score of its categories,
         // and collect the mapping from media to score in a map
         return media.stream()
                     .collect(Collectors.toMap(
-                    /* Map Key: */      m -> m, // The map key is the media itself
-                    /* Map Value: */    m -> m.categories.stream() // First, get the categories of the media
-                                                          .mapToInt(c -> categories.get(c)) // Calculate the search score for each category
-                                                          .max() // Get the highest score
-                                                          .orElse(0) // If there are no categories, the score is 0
-                    ));
+                                        m -> m, // The map key is the media itself
+                                        m -> IntStream.of(categoryScores) // Get the category scores
+                                                      .max() // Get the highest score
+                                                      .orElseGet(() -> 0))); // If there are no categories, the score is 0
     }
 
     /** Returns the media that matches the given queries.

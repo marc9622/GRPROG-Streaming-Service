@@ -29,11 +29,11 @@ public class ApplicationData {
     }
 
     public List<Media> getAllMedia() {
-        return allMedia.getMedia();
+        return allMedia.sortBy(MediaSorting.SortBy.DEFAULT, MediaSorting.SortOrder.DEFAULT);
     }
 
     public List<Media> searchAllMedia(String query) {
-        return allMedia.search(query);
+        return allMedia.sortBySearch(query, true, true);
     }
 
 }

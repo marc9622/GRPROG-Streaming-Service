@@ -1,8 +1,6 @@
 package domain;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class UserList {
@@ -13,15 +11,18 @@ public class UserList {
         users = new HashSet<User>();
     }
 
-    public List<User> getUsers() {
-        return new ArrayList<User>(users);
+    public Set<User> getUsers() {
+        return new HashSet<User>(users);
     }
 
     public User getUser(String username) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws UserAlreadyExistsException {
+        if(users.contains(user))
+            throw new UserAlreadyExistsException("User already exists");
+
         users.add(user);
     }
 
@@ -31,6 +32,12 @@ public class UserList {
 
     public void removeUser(String username) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public class UserAlreadyExistsException extends Exception {
+        public UserAlreadyExistsException(String message) {
+            super(message);
+        }
     }
 
 }

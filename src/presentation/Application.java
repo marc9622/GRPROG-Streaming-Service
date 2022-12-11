@@ -3,8 +3,11 @@ package presentation;
 import java.io.IOException;
 
 import domain.ApplicationData;
+import domain.User;
 import domain.MediaParsing.InvalidStringFormatException;
-import presentation.WelcomePage.UserListButtons.UserButton;
+import domain.UserList.UserAlreadyExistsException;
+import presentation.WelcomePage.UserSelectionButtons.SelectUserButton;
+import presentation.WelcomePage.OpenAddUserButton.AddUserPage.AddUserButton;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,15 +33,24 @@ public class Application implements ActionListener {
             // TODO: Could not read files
         }
         
-        window.changeToPage(ApplicationWindow.Page.WELCOME, data.getUsers(), this);
+        window.gotoWelcomePage(data.getUsers(), this);
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() instanceof UserButton button) {
-            String username = button.username;
-            System.out.println(username);
+        switch (e.getSource()) {
+            case SelectUserButton button -> {
+                window.gotoHomePage(data.getUser(button.getUsername()), data.getAllMedia(), this);
+            }
+            case AddUserButton button -> {
+                try {
+                    data.addUser(new User(button.getUsername(), button.getPassword()));
+                } catch (UserAlreadyExistsException e1) {
+                    window.showError(e1.getMessage());
+                }
+                window.gotoWelcomePage(data.getUsers(), this);
+            }
+            default -> throw new IllegalStateException("Invalid source for action event");
         }
-        else throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

@@ -3,22 +3,28 @@ package presentation;
 import javax.swing.Box.Filler;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 import domain.User;
 
-import static javax.swing.JPanel.*;
+import static java.awt.Component.CENTER_ALIGNMENT;
+
+import presentation.WelcomePage.OpenAddUserButton.AddUserPage.CancelAddUserButton;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
+import java.util.Set;
 
 public class WelcomePage {
     
     private JPanel panel;
 
-    public WelcomePage(Collection<User> users, ActionListener selectUserListener) {
+    public WelcomePage(Set<User> users, Application application) {
         panel = new JPanel();
 
         // Set the layout of the panel
@@ -48,14 +54,21 @@ public class WelcomePage {
             selectLabel.setFont(selectLabel.getFont().deriveFont(32f));
             panel.add(selectLabel);
 
-            Filler selectUsersFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 100));
+            Filler selectUsersFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
             panel.add(selectUsersFiller);
 
-            UserListButtons userListButtons = new UserListButtons(users, selectUserListener);
+            UserSelectionButtons userListButtons = new UserSelectionButtons(users, application);
             panel.add(userListButtons);
 
-            Filler usersButtomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 400));
-            panel.add(usersButtomFiller);
+            Filler usersAddFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
+            panel.add(usersAddFiller);
+
+            OpenAddUserButton addUserButton = new OpenAddUserButton("Add User", application);
+            addUserButton.setAlignmentX(CENTER_ALIGNMENT);
+            panel.add(addUserButton);
+
+            Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 250));
+            panel.add(bottomFiller);
         }
     }
 
@@ -63,19 +76,19 @@ public class WelcomePage {
         return panel;
     }
 
-    class UserListButtons extends JPanel {
+    class UserSelectionButtons extends JPanel {
         
-        private final UserButton[] userButtons;
+        private final SelectUserButton[] userButtons;
 
         /** Creates a new user list buttons object. */
-        private UserListButtons(Collection<User> users, ActionListener listener) {
+        private UserSelectionButtons(Set<User> users, Application application) {
             //panel.userList = userList;
 
             // Creates the buttons
             userButtons = users.stream()
                                .sorted()
-                               .map(user -> new UserButton(user.getUsername(), listener))
-                               .toArray(UserButton[]::new);
+                               .map(user -> new SelectUserButton(user.getUsername(), application))
+                               .toArray(SelectUserButton[]::new);
             
             // Adds the buttons to the panel
             for(int i = 0; i < userButtons.length; i++) {
@@ -93,27 +106,159 @@ public class WelcomePage {
             this.setAlignmentY(CENTER_ALIGNMENT);
         }
 
-        class UserButton extends JButton {
+        class SelectUserButton extends JButton {
         
-            public final String username;
+            private final String username;
     
             /** Creates a new user button object. */
-            private UserButton(String username, ActionListener listener) {
+            private SelectUserButton(String username, ActionListener listener) {
                 // Sets the username
                 this.username = username;
     
                 // Sets the text of the button
                 this.setText(username);
 
-                // Sets the action command of the button
-                this.setActionCommand(username);
-
                 // Adds the listener to the button
                 this.addActionListener(listener);
             }
             
+            public String getUsername() {
+                return username;
+            }
         }
 
     }
 
+    class OpenAddUserButton extends JButton implements ActionListener {
+
+        private final AddUserPage frame;
+
+        public OpenAddUserButton(String text, Application application) {
+            super(text);
+            this.addActionListener(this);
+
+            frame = new AddUserPage(application);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            switch (e.getSource()) {
+                case OpenAddUserButton button -> frame.show();
+                case CancelAddUserButton button -> frame.hide();
+                default -> throw new IllegalStateException("Invalid source for action event");
+            }
+        }
+
+        class AddUserPage extends JPanel {
+
+            private final JFrame frame;
+
+            public AddUserPage(Application application) {
+
+                // Creates the frame
+                frame = new JFrame("Add User");
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.setContentPane(this);
+                frame.setLocationRelativeTo(WelcomePage.this.panel);
+
+                { // Sets the layout of this outer panel and adds filler to the sides
+                    BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+                    this.setLayout(layout);
+                    this.setAlignmentX(CENTER_ALIGNMENT);
+
+                    Filler leftFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
+                    this.add(leftFiller);
+
+                    Filler rightFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
+                    this.add(rightFiller);
+                }
+                
+                // Creates inner panel so that outer panel can be centered
+                JPanel panel = new JPanel();
+                this.add(panel, 1);
+
+                { // Sets the layout of the inner panel
+                    BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+                    panel.setLayout(layout);
+                    panel.setAlignmentX(LEFT_ALIGNMENT);
+                }
+
+                { // Creates and adds the components to the panel
+                    Filler topFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
+                    panel.add(topFiller);
+
+                    JLabel usernameLabel = new JLabel("Username:");
+                    panel.add(usernameLabel);
+
+                    JTextField usernameField = new JTextField(20);
+                    panel.add(usernameField);
+
+                    JLabel passwordLabel = new JLabel("Password:");
+                    panel.add(passwordLabel);
+
+                    JPasswordField passwordField = new JPasswordField(20);
+                    panel.add(passwordField);
+
+                    Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
+                    panel.add(bottomFiller);
+
+                    // Creates the buttons panel
+                    JPanel buttonPanel = new JPanel();
+                    
+                    // Creates the buttons
+                    JButton addButton = new AddUserButton("Add", usernameField, passwordField, application);
+                    buttonPanel.add(addButton);
+                    
+                    CancelAddUserButton cancelButton = new CancelAddUserButton("Cancel");
+                    buttonPanel.add(cancelButton);
+    
+                    // Adds the button panel to the panel
+                    panel.add(buttonPanel);
+                }
+
+                // Sets the frame properties
+                frame.pack();
+                frame.setResizable(false);
+            }
+
+            public void show() {
+                frame.setVisible(true);
+            }
+
+            public void hide() {
+                frame.setVisible(false);
+            }
+
+            class CancelAddUserButton extends JButton {
+
+                public CancelAddUserButton(String text) {
+                    super(text);
+                    this.addActionListener(OpenAddUserButton.this);
+                }
+
+            }
+
+            class AddUserButton extends JButton {
+
+                private final JTextField usernameField;
+                private final JPasswordField passwordField;
+
+                public AddUserButton(String text, JTextField usernameField, JPasswordField passwordField, Application application) {
+                    super(text);
+                    this.usernameField = usernameField;
+                    this.passwordField = passwordField;
+                    this.addActionListener(application);
+                }
+
+                public String getUsername() {
+                    return usernameField.getText();
+                }
+
+                public String getPassword() {
+                    return new String(passwordField.getPassword());
+                }
+
+            }
+        }
+
+    }
 }

@@ -1,12 +1,14 @@
 package presentation;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
+import domain.Media;
 import domain.User;
 
 import java.awt.Rectangle;
-import java.awt.event.ActionListener;
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class ApplicationWindow {
     
@@ -19,12 +21,6 @@ public class ApplicationWindow {
     private HomePage homePage;
     private InformationPage informationPage;
     private PlaybackPage playbackPage;
-
-    public static enum Page {
-        WELCOME, HOME, INFORMATION, PLAYBACK
-    }
-
-    private Page currentPage;
 
     public ApplicationWindow() {
         // Create the frame
@@ -48,40 +44,32 @@ public class ApplicationWindow {
         frame.setVisible(true);
     }
 
-    public void changeToPage(Page page, Collection<User> users, ActionListener actionListener) {
-        // Clear the frame
+    public void gotoWelcomePage(Set<User> users, Application applicationListener) {
         clearFrame();
 
-        // Set the current page
-        currentPage = page;
+        welcomePage = new WelcomePage(users, applicationListener);
+        frame.add(welcomePage.getPanel());
 
-        // Add the page to the frame
-        switch (currentPage) {
-            case WELCOME:
-                welcomePage = welcomePage != null ? welcomePage : new WelcomePage(users, actionListener);
-                frame.add(welcomePage.getPanel());
-                break;
-            case HOME:
-                homePage = homePage != null ? homePage : new HomePage();
-                frame.add(homePage.getPanel());
-                break;
-            case INFORMATION:
-                informationPage = informationPage != null ? informationPage : new InformationPage();
-                frame.add(informationPage.getPanel());
-                break;
-            case PLAYBACK:
-                playbackPage = playbackPage != null ? playbackPage : new PlaybackPage();
-                frame.add(playbackPage.getPanel());
-                break;
-        }
+        frame.revalidate();
+        frame.repaint();
+    }
 
-        // Refresh the frame
+    public void gotoHomePage(User user, List<Media> allMedia, Application applicationListener) {
+        clearFrame();
+
+        homePage = new HomePage(user, allMedia, applicationListener);
+        frame.add(homePage.getPanel());
+
         frame.revalidate();
         frame.repaint();
     }
 
     private void clearFrame() {
         frame.getContentPane().removeAll();
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(frame, message, "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
     }
 
 }

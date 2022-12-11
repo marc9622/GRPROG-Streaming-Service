@@ -323,7 +323,8 @@ public class MediaParsing {
 
         public InvalidStringFormatException(String errorDescription, String[] invalidStrings, Media[] successfullyParsed) {
             super(errorDescription + " String: '" + invalidStrings[0].strip() +
-                (invalidStrings.length == 1 ? "'" : "' and " + (invalidStrings.length - 1) + " more.")
+                (invalidStrings.length == 1 ? "'" : "' and " + (invalidStrings.length - 1) + " more.") +
+                " Successfully parsed: " + successfullyParsed.length + " media."
             );
             this.errorDescription = errorDescription;
             this.invalidStrings = invalidStrings;

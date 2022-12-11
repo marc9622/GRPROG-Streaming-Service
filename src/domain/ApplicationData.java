@@ -2,8 +2,10 @@ package domain;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import domain.MediaParsing.InvalidStringFormatException;
+import domain.UserList.UserAlreadyExistsException;
 
 public class ApplicationData {
 
@@ -24,7 +26,7 @@ public class ApplicationData {
         allMedia.readMediaFromFiles(FILE_PATH_MOVIES, FILE_PATH_SERIES, FILE_PATH_MOVIES_IMAGES, FILE_PATH_SERIES_IMAGES);
     }
 
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
         return users.getUsers();
     }
 
@@ -32,7 +34,7 @@ public class ApplicationData {
         return users.getUser(username);
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws UserAlreadyExistsException {
         users.addUser(user);
     }
 

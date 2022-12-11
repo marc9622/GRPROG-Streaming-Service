@@ -2,8 +2,8 @@ package domain;
 
 public class User implements Comparable<User> {
     
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public User(String username, String password) {
         this.username = username;
@@ -25,6 +25,24 @@ public class User implements Comparable<User> {
      */
     public int compareTo(User user) {
         return username.compareTo(user.username);
+    }
+
+    public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+
+        if(obj == this)
+            return true;
+
+        if(!(obj instanceof User))
+            return false;
+
+        User other = (User) obj;
+        return this.username.equals(other.username);
+    }
+
+    public int hashCode() {
+        return username.hashCode();
     }
 
 }

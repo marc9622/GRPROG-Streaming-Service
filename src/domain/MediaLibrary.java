@@ -9,7 +9,7 @@ import domain.MediaParsing.InvalidStringFormatException;
 import domain.MediaSorting.SearchCache;
 
 /** A class that represents a library of media. <ul>
- * <p> Use {@link #readFiles(String, String)} to read the media from the given files.
+ * <p> Use {@link #readMediaFromFiles(String, String)} to read the media from the given files.
  * <p> Use {@link #search(String)} to search for media.
  * <p> Use {@link #add(Media)} to add media to the library.
  * <p> Use {@link #remove(Media)} to remove media from the library. </ul>
@@ -31,23 +31,45 @@ public class MediaLibrary {
      * @throws IOException If the files could not be read.
      * @throws MediaParsing.InvalidStringFormatException If the files are not formatted correctly.
      */
-    public static MediaLibrary parseMediaLibrary(String filePathMovies, String filePathSeries) throws IOException, InvalidStringFormatException {
+    public static MediaLibrary parseMediaLibrary(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
+    throws IOException, InvalidStringFormatException {
+
         MediaLibrary library = new MediaLibrary();
-        library.readFiles(filePathMovies, filePathSeries);
+        library.readMediaFromFiles(filePathMovies, filePathSeries, filePathMovieImages, filePathSeriesImages);
         return library;
     }
 
     /** Re-reads the media files and updates the media library, and clears the search cache.
+     * <p><i>If some lines were not formatted correctly, an exception will be thrown,
+     * but the all successfully parsed media will still be added to the library.</i>
      * @param filePathMovies The path to the file containing movies.
      * @param filePathSeries The path to the file containing series.
      * @throws IOException If the files could not be read.
      * @throws MediaParsing.InvalidStringFormatException If the files are not formatted correctly.
+     * <i>All successfully parsed media will still be added to the library.</i>
      */
-    private void readFiles(String filePathMovies, String filePathSeries) throws IOException, InvalidStringFormatException {
-        Media[] mediaArray = MediaParsing.parseFiles(filePathMovies, filePathSeries);
+    public void readMediaFromFiles(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
+    throws IOException, InvalidStringFormatException {
+
+        Media[] mediaArray;
+        InvalidStringFormatException exception = null;
+        // Try to parse files and get all media
+        try {
+            mediaArray = MediaParsing.parseFiles(filePathMovies, filePathSeries, filePathMovieImages, filePathSeriesImages);
+        }
+        // If unsuccessful, get the successfully parsed media
+        catch (InvalidStringFormatException e) {
+            mediaArray = e.getSuccessfullyParsed();
+            exception = e;
+        }
+
+        // Update media library
         mediaSet.clear();
         Stream.of(mediaArray).forEach(media -> mediaSet.add(media));
         searchCache.clear();
+
+        // Throw exception if unsuccessful
+        if (exception != null) throw exception;
     }
 
     /** Returns the media library sorted by the given search string.

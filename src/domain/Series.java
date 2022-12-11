@@ -26,8 +26,8 @@ public class Series extends Media {
      * @param rating The rating of the serie.
      * @param seasonLengths The number of episodes per season in order. The indices are therefore the seasons numbers.
      */
-    Series(String title, int releaseYear, boolean isEnded, int endYear, String[] categories, float rating, int[] seasonLengths) {
-        super(title, releaseYear, categories, rating);
+    Series(String title, int releaseYear, boolean isEnded, int endYear, String[] categories, float rating, int[] seasonLengths, String imagePath) {
+        super(title, releaseYear, categories, rating, imagePath);
         this.isEnded = isEnded;
         this.endYear = endYear;
         this.seasonLengths = new ImmutableArray<Integer>(IntStream.of(seasonLengths).boxed().toArray(Integer[]::new));

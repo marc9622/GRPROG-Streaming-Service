@@ -2,6 +2,7 @@ package domain;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,61 +15,6 @@ public abstract class Media {
     public final String title;
     public final int releaseYear;
     public final float rating;
-
-    // /** An enum of the different categories that movies and series can belong to
-    //  * <p> TODO: Maybe make this consist of flags in a bit field?
-    //  * An enum value is stored as an int, which is 4 bytes,
-    //  * and there are 23 categories, so 4 bytes * 23 = 92 bytes.
-    //  * But if each category is stored as a flag in a bit field,
-    //  * then only one int is needed, as 4 bytes * 8 = 32 bits.
-    // */
-    // public static enum Category {
-    //     Action, Adventure, Biography, Comedy , Crime, Drama, // Ignoring uppercase convention ¯\_(ツ)_/¯
-    //     Family, Fantasy, History, Horror,  Mystery, Romance,
-    //     SciFi("Sci-fi"), Sport, Thriller, War, Western,
-
-    //     FilmNoir("Film-Noir"), Music, Musical, // Unique to movies
-    //     Animation, Documentary, TalkShow("Talk-show"); // Unique to series
-
-    //     private String realName = null;
-
-    //     private Category() {}
-    //     private Category(String realName) {
-    //         this.realName = realName;
-    //     }
-        
-    //     private static Map<String, Category> map =
-    //         Stream.of(Category.values()).collect(
-    //             Collectors.toMap(
-    //                 c -> c.toString().toLowerCase(), // Map key
-    //                 c -> c                           // Map value
-    //             )
-    //         );
-
-    //     /** Returns the category that corresponds to the given string, <i>case insensitive</i>.
-    //      * @param string The string to parse.
-    //      * @return The category that corresponds to the given string.
-    //      */
-    //     public static Optional<Category> fromString(String string) {
-    //         return Optional.ofNullable(map.get(string.toLowerCase()));
-    //     }
-
-    //     /** Returns a set of string representing the categories, <i>in lowercase</i>.
-    //      * @return The set of strings.
-    //      */
-    //     public static Set<String> getStringsLowerCase() {
-    //         return map.keySet();
-    //     }
-    
-    //     /** Returns the string representation of this category.
-    //      * Some categories have a different string representation than their name.
-    //      * For example, the category <code>SciFi</code> has the string representation <code>"Sci-fi"</code>.
-    //      * @return The string representation of this category.
-    //      */
-    //     public String toString() {
-    //         return realName == null ? name() : realName;
-    //     }
-    // }
 
     /** The categories this media belongs to */
     public final CategoryList categories;
@@ -88,7 +34,7 @@ public abstract class Media {
 
         x '<<' y means shift the bits of x to the left by y places.
         
-        1 << n is equal to 2^n.
+        '1 << n' is equal to 2^n.
 
         Examples:
            1 << 0 = ..0001 = 1
@@ -121,10 +67,10 @@ public abstract class Media {
         public static final ImmutableArray<String> names = new ImmutableArray<>(new String[] {
             "action", "adventure", "biography", "comedy", "crime", "drama",
             "family", "fantasy", "history", "horror", "mystery", "romance",
-            "scifi", "sport", "thriller", "war", "western",
+            "sci-fi", "sport", "thriller", "war", "western",
 
-            "filmnoir", "music", "musical",        // Unique to movies
-            "animation", "documentary", "talkshow" // Unique to series
+            "film-noir", "music", "musical",        // Unique to movies
+            "animation", "documentary", "talk-show" // Unique to series
         });
         
         private static final Map<String, Integer> map = new HashMap<>() {{
@@ -206,11 +152,22 @@ public abstract class Media {
         }
     }
 
-    protected Media(String title, int releaseYear, String[] categories, float rating) {
+    public final String imagePath;
+
+    protected Media(String title, int releaseYear, String[] categories, float rating, String imagePath) {
+        Objects.requireNonNull(title);
+        Objects.requireNonNull(categories);
+        Objects.requireNonNull(imagePath);
+
         this.title = title;
         this.releaseYear = releaseYear;
         this.categories = new CategoryList(categories);
         this.rating = rating;
+
+        if(imagePath.endsWith("/") || imagePath.endsWith("\\"))
+            this.imagePath = imagePath + title + ".jpg";
+        else
+            this.imagePath = imagePath + "/" + title + ".jpg";
     }
 
     protected String getCategoriesString() {
@@ -221,5 +178,5 @@ public abstract class Media {
 
     public abstract int hashCode();
 
-    public abstract boolean equals(Object obj);    
+    public abstract boolean equals(Object obj);
 }

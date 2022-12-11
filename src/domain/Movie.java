@@ -12,8 +12,8 @@ public class Movie extends Media {
      * @param categories The categories the movie belongs to.
      * @param rating The rating of the movie.
      */
-    Movie(String title, int releaseYear, String[] categories, float rating) {
-        super(title, releaseYear, categories, rating);
+    Movie(String title, int releaseYear, String[] categories, float rating, String imagePath) {
+        super(title, releaseYear, categories, rating, imagePath);
     }
 
     public String toString() {

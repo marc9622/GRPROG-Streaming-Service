@@ -3,7 +3,6 @@ package domain;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import data.FileReading;
 
@@ -28,13 +27,23 @@ public class MediaParsing {
      * @throws IOException If an I/O error occurs trying to read from the file.
      * @throws InvalidStringFormatException If a line in the file is not written in the correct format.
      */
-    public static Media[] parseFiles(String filePathMovies, String filePathSeries) throws IOException, InvalidStringFormatException {
-        // Read all lines from files
-        String[] linesMovies = FileReading.readLinesFromFile(filePathMovies);
-        String[] linesSeries = FileReading.readLinesFromFile(filePathSeries);
+    public static Media[] parseFiles(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
+    throws IOException, InvalidStringFormatException {
+        
+        // Parse the lines to media
+        Media[] linesMovies = parseLinesToMedia(FileReading.readLinesFromFile(filePathMovies), filePathMovieImages);
+        Media[] linesSeries = parseLinesToMedia(FileReading.readLinesFromFile(filePathSeries), filePathSeriesImages);
 
-        // Parse all lines to media
-        return parseLinesToMedia(linesMovies, linesSeries);
+        // Combine the two arrays
+        Media[] lines = new Media[linesMovies.length + linesSeries.length];
+        System.arraycopy(linesMovies, 0, lines, 0, linesMovies.length);
+        System.arraycopy(linesSeries, 0, lines, linesMovies.length, linesSeries.length);
+        
+        return lines;
+    }
+
+    static Media[] parseLinesToMedia(String[] lines, String imagePath) throws InvalidStringFormatException {
+        return parseLinesToMedia(new String[][] {lines}, imagePath);
     }
 
     /** Takes a string array of movies and one of series and parses them into an array of movies and series.
@@ -43,7 +52,7 @@ public class MediaParsing {
      * @return An array of movies and series.
      * @throws InvalidStringFormatException If a string could not be parsed.
      */
-    static Media[] parseLinesToMedia(String[]... lines) throws InvalidStringFormatException {
+    static Media[] parseLinesToMedia(String[][] lines, String imagesPath) throws InvalidStringFormatException {
         if(lines.length == 0) return new Media[0];
 
         ArrayList<Media> media = new ArrayList<Media>(lines[0].length);
@@ -56,7 +65,7 @@ public class MediaParsing {
         for(String[] lineArray : lines)
             for(String line : lineArray)
                 try {
-                    media.add(parseStringToMedia(line));
+                    media.add(parseStringToMedia(line, imagesPath));
                 }
                 // If an exception is thrown, we want to save it and continue parsing.
                 catch (InvalidStringFormatException e) {
@@ -89,7 +98,7 @@ public class MediaParsing {
      * @return Either a Movie or Serie object. (Or null if the string is ignored.)
      * @throws InvalidStringFormatException If the string is not formatted correctly.
      */
-    static Media parseStringToMedia(String string) throws InvalidStringFormatException {
+    static Media parseStringToMedia(String string, String imagePath) throws InvalidStringFormatException {
         // If the line starts with "//", it is ignored.
         if(string.startsWith("//")) return null;
 
@@ -291,9 +300,9 @@ public class MediaParsing {
                                                    "but string contained more characters than expected.", string);
 
         // Create the media object and return it.
-        if(!knowItIsSerie) return new Movie(title, releaseYear, categories.toArray(String[]::new), rating);
+        if(!knowItIsSerie) return new Movie(title, releaseYear, categories.toArray(String[]::new), rating, imagePath);
         else               return new Series(title, releaseYear, isEnded, endYear, categories.toArray(String[]::new), rating,
-                                            seasonLengths.stream().mapToInt(i -> i).toArray());
+                                            seasonLengths.stream().mapToInt(i -> i).toArray(), imagePath);
     }
 
     /** Thrown when a string cannot be parsed to a movie or a serie.
@@ -313,7 +322,7 @@ public class MediaParsing {
         }
 
         public InvalidStringFormatException(String errorDescription, String[] invalidStrings, Media[] successfullyParsed) {
-            super(errorDescription + " String: '" + invalidStrings[0] +
+            super(errorDescription + " String: '" + invalidStrings[0].strip() +
                 (invalidStrings.length == 1 ? "'" : "' and " + (invalidStrings.length - 1) + " more.")
             );
             this.errorDescription = errorDescription;

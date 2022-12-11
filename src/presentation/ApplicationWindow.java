@@ -3,14 +3,12 @@ package presentation;
 import javax.swing.JFrame;
 
 import domain.User;
-import presentation.WelcomePage.UserListButtons.UserButton;
 
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 
-public class ApplicationWindow implements ActionListener {
+public class ApplicationWindow {
     
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 800;
@@ -22,13 +20,13 @@ public class ApplicationWindow implements ActionListener {
     private InformationPage informationPage;
     private PlaybackPage playbackPage;
 
-    private static enum Page {
+    public static enum Page {
         WELCOME, HOME, INFORMATION, PLAYBACK
     }
 
     private Page currentPage;
 
-    public ApplicationWindow(Collection<User> users) {
+    public ApplicationWindow() {
         // Create the frame
         frame = new JFrame();
 
@@ -46,14 +44,11 @@ public class ApplicationWindow implements ActionListener {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
-        // Change the page to the welcome page
-        changePage(Page.WELCOME, users);
-
-        // Show the frame
+        // Set visible
         frame.setVisible(true);
     }
 
-    private void changePage(Page page, Collection<User> users) {
+    public void changeToPage(Page page, Collection<User> users, ActionListener actionListener) {
         // Clear the frame
         clearFrame();
 
@@ -63,19 +58,19 @@ public class ApplicationWindow implements ActionListener {
         // Add the page to the frame
         switch (currentPage) {
             case WELCOME:
-                welcomePage = new WelcomePage(users, this);
+                welcomePage = welcomePage != null ? welcomePage : new WelcomePage(users, actionListener);
                 frame.add(welcomePage.getPanel());
                 break;
             case HOME:
-                homePage = new HomePage();
+                homePage = homePage != null ? homePage : new HomePage();
                 frame.add(homePage.getPanel());
                 break;
             case INFORMATION:
-                informationPage = new InformationPage();
+                informationPage = informationPage != null ? informationPage : new InformationPage();
                 frame.add(informationPage.getPanel());
                 break;
             case PLAYBACK:
-                playbackPage = new PlaybackPage();
+                playbackPage = playbackPage != null ? playbackPage : new PlaybackPage();
                 frame.add(playbackPage.getPanel());
                 break;
         }
@@ -87,14 +82,6 @@ public class ApplicationWindow implements ActionListener {
 
     private void clearFrame() {
         frame.getContentPane().removeAll();
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() instanceof UserButton button) {
-            String username = button.username;
-            System.out.println(username);
-        }
-        else throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

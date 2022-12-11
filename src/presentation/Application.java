@@ -6,6 +6,7 @@ import domain.ApplicationData;
 import domain.User;
 import domain.MediaParsing.InvalidStringFormatException;
 import domain.UserList.UserAlreadyExistsException;
+import domain.UserList.UserDoesNotExistException;
 import presentation.WelcomePage.UserSelectionButtons.SelectUserButton;
 import presentation.WelcomePage.OpenAddUserButton.AddUserPage.AddUserButton;
 
@@ -38,9 +39,7 @@ public class Application implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         switch (e.getSource()) {
-            case SelectUserButton button -> {
-                window.gotoHomePage(data.getUser(button.getUsername()), data.getAllMedia(), this);
-            }
+            // If the source is a AddUserButton, add the user and reload the welcome page
             case AddUserButton button -> {
                 try {
                     data.addUser(new User(button.getUsername(), button.getPassword()));
@@ -48,6 +47,15 @@ public class Application implements ActionListener {
                     window.showError(e1.getMessage());
                 }
                 window.gotoWelcomePage(data.getUsers(), this);
+            }
+            // If the source is a SelectUserButton, go to the home page with the selected user
+            case SelectUserButton button -> {
+                try {
+                    window.gotoHomePage(data.getUser(button.getUsername()), data.getAllMedia(), this);
+                } catch (UserDoesNotExistException e1) {
+                    throw new RuntimeException("Could not find user with the name of :" + button.getUsername() + ", " +
+                                               "this should never happen.", e1);
+                }
             }
             default -> throw new IllegalStateException("Invalid source for action event");
         }

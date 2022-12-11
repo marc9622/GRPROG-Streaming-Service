@@ -15,8 +15,16 @@ public class UserList {
         return new HashSet<User>(users);
     }
 
-    public User getUser(String username) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public User getUser(String username) throws UserDoesNotExistException {
+        User user = users.stream()
+                         .filter(u -> u.getUsername().equals(username))
+                         .findFirst()
+                         .orElse(null);
+        
+        if(user == null)
+            throw new UserDoesNotExistException("User does not exist");
+
+        return user;
     }
 
     public void addUser(User user) throws UserAlreadyExistsException {
@@ -36,6 +44,12 @@ public class UserList {
 
     public class UserAlreadyExistsException extends Exception {
         public UserAlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
+    public class UserDoesNotExistException extends Exception {
+        public UserDoesNotExistException(String message) {
             super(message);
         }
     }

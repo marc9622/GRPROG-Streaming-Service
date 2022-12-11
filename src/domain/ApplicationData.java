@@ -6,6 +6,7 @@ import java.util.Set;
 
 import domain.MediaParsing.InvalidStringFormatException;
 import domain.UserList.UserAlreadyExistsException;
+import domain.UserList.UserDoesNotExistException;
 
 public class ApplicationData {
 
@@ -30,7 +31,7 @@ public class ApplicationData {
         return users.getUsers();
     }
 
-    public User getUser(String username) {
+    public User getUser(String username) throws UserDoesNotExistException {
         return users.getUser(username);
     }
 

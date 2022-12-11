@@ -10,14 +10,10 @@ import javax.swing.BoxLayout;
 
 public class InformationPage {
     
-    private JPanel panel;
+    public final JPanel panel;
 
     public InformationPage() {
         panel = new JPanel();
-    }
-
-    public JPanel getPanel() {
-        return panel;
     }
 
     public static void main(String[] args) {

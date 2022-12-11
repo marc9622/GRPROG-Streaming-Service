@@ -9,9 +9,9 @@ import domain.User;
 
 public class HomePage {
     
-    private JPanel panel;
+    public final JPanel panel;
 
-    public HomePage(User user, List<Media> allMedia, Application applicationListener) {
+    public HomePage(User user, List<Media> allMedia) {
         panel = new JPanel();
     }
 

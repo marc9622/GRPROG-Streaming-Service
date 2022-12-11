@@ -7,13 +7,8 @@ import domain.User;
 import domain.MediaParsing.InvalidStringFormatException;
 import domain.UserList.UserAlreadyExistsException;
 import domain.UserList.UserDoesNotExistException;
-import presentation.WelcomePage.UserSelectionButtons.SelectUserButton;
-import presentation.WelcomePage.OpenAddUserButton.AddUserPage.AddUserButton;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-public class Application implements ActionListener {
+public class Application {
     
     private final ApplicationData data;
     private final ApplicationWindow window;
@@ -34,31 +29,34 @@ public class Application implements ActionListener {
             // TODO: Could not read files
         }
         
-        window.gotoWelcomePage(data.getUsers(), this);
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser);
     }
 
-    public void actionPerformed(ActionEvent e) {
-        switch (e.getSource()) {
-            // If the source is a AddUserButton, add the user and reload the welcome page
-            case AddUserButton button -> {
-                try {
-                    data.addUser(new User(button.getUsername(), button.getPassword()));
-                } catch (UserAlreadyExistsException e1) {
-                    window.showError(e1.getMessage());
-                }
-                window.gotoWelcomePage(data.getUsers(), this);
-            }
-            // If the source is a SelectUserButton, go to the home page with the selected user
-            case SelectUserButton button -> {
-                try {
-                    window.gotoHomePage(data.getUser(button.getUsername()), data.getAllMedia(), this);
-                } catch (UserDoesNotExistException e1) {
-                    throw new RuntimeException("Could not find user with the name of :" + button.getUsername() + ", " +
-                                               "this should never happen.", e1);
-                }
-            }
-            default -> throw new IllegalStateException("Invalid source for action event");
+    private void loginUser(String username, String password) {
+        User user;
+        try {
+            user = data.getUser(username);
         }
+        catch (UserDoesNotExistException e1) {
+            throw new RuntimeException("Could not find user with the name of :" + username + ", " +
+                                       "this should never happen.", e1);
+        }
+        if(user.checkPassword(password)) {
+            System.out.println("Logged in as " + username + "!");
+        }
+        else {
+            window.showError("Incorrect password");
+        }
+    }
+
+    private void addUser(String username, String password) {
+        try {
+            data.addUser(new User(username, password));
+        }
+        catch (UserAlreadyExistsException e1) {
+            window.showError(e1.getMessage());
+        }
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser);
     }
 
 }

@@ -15,7 +15,7 @@ public class User implements Comparable<User> {
     }
 
     public boolean checkPassword(String password) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.password.equals(password);
     }
 
     /** Compares this user to the given user.

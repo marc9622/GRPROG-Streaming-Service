@@ -9,6 +9,7 @@ import domain.User;
 import java.awt.Rectangle;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 public class ApplicationWindow {
     
@@ -18,8 +19,13 @@ public class ApplicationWindow {
     private JFrame frame;
 
     private WelcomePage welcomePage;
+
     private HomePage homePage;
+
+    @SuppressWarnings("unused")
     private InformationPage informationPage;
+
+    @SuppressWarnings("unused")
     private PlaybackPage playbackPage;
 
     public ApplicationWindow() {
@@ -44,21 +50,21 @@ public class ApplicationWindow {
         frame.setVisible(true);
     }
 
-    public void gotoWelcomePage(Set<User> users, Application applicationListener) {
+    public void gotoWelcomePage(Set<User> users, BiConsumer<String, String> loginUserListener, BiConsumer<String, String> addUserListener) {
         clearFrame();
 
-        welcomePage = new WelcomePage(users, applicationListener);
-        frame.add(welcomePage.getPanel());
+        welcomePage = new WelcomePage(users, loginUserListener, addUserListener);
+        frame.add(welcomePage.panel);
 
         frame.revalidate();
         frame.repaint();
     }
 
-    public void gotoHomePage(User user, List<Media> allMedia, Application applicationListener) {
+    public void gotoHomePage(User user, List<Media> allMedia) {
         clearFrame();
 
-        homePage = new HomePage(user, allMedia, applicationListener);
-        frame.add(homePage.getPanel());
+        homePage = new HomePage(user, allMedia);
+        frame.add(homePage.panel);
 
         frame.revalidate();
         frame.repaint();

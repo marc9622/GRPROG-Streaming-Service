@@ -3,11 +3,9 @@ package presentation;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import domain.Media;
 import domain.User;
 
 import java.awt.Rectangle;
-import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -60,10 +58,10 @@ public class ApplicationWindow {
         frame.repaint();
     }
 
-    public void gotoHomePage(User user, List<Media> allMedia) {
+    public void gotoHomePage(User user) {
         clearFrame();
 
-        homePage = new HomePage(user, allMedia);
+        homePage = new HomePage(user);
         frame.add(homePage.panel);
 
         frame.revalidate();

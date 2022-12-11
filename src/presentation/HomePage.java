@@ -1,17 +1,14 @@
 package presentation;
 
-import java.util.List;
-
 import javax.swing.JPanel;
 
-import domain.Media;
 import domain.User;
 
 public class HomePage {
     
     public final JPanel panel;
 
-    public HomePage(User user, List<Media> allMedia) {
+    public HomePage(User user) {
         panel = new JPanel();
     }
 

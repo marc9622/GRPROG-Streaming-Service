@@ -42,6 +42,7 @@ public class Application {
                                        "this should never happen.", e1);
         }
         if(user.checkPassword(password)) {
+            window.gotoHomePage(user);
             System.out.println("Logged in as " + username + "!");
         }
         else {

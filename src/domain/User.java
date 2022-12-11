@@ -7,7 +7,7 @@ public class User implements Comparable<User> {
 
     public User(String username, String password) {
         this.username = username;
-        this.password = password;
+        this.password = XOREncryption.encrypt(password);
     }
 
     public String getUsername() {
@@ -15,7 +15,7 @@ public class User implements Comparable<User> {
     }
 
     public boolean checkPassword(String password) {
-        return this.password.equals(password);
+        return this.password.equals(XOREncryption.encrypt(password));
     }
 
     /** Compares this user to the given user.

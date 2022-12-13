@@ -136,12 +136,12 @@ class MediaSorting {
             
         // Otherwise, calculate how well the query matches each category
         else {
-                                                    // Get the names of all categories
-            categoryScores = Media.CategoryList.names.stream()
-                                                    // Calculate the search score for each category
-                                                     .mapToInt(c -> calcSearchScore(query, c))
-                                                    // Convert the stream to an array
-                                                     .toArray();
+            categoryScores =            // Get the names of all categories
+                Media.CategoryList.names.stream()
+                                        // Calculate the search score for each category
+                                        .mapToInt(c -> calcSearchScore(query, c))
+                                        // Convert the stream to an array
+                                        .toArray();
             // And add the result to the cache
             searchCategoryCache.put(query, categoryScores);
         }
@@ -151,9 +151,10 @@ class MediaSorting {
         return media.stream()
                     .collect(Collectors.toMap(
                                         m -> m, // The map key is the media itself
-                                        m -> IntStream.of(categoryScores) // Get the category scores
-                                                      .max() // Get the highest score
-                                                      .orElseGet(() -> 0))); // If there are no categories, the score is 0
+                                        m -> IntStream.of(m.categories.getIndices())
+                                                      .map(i -> categoryScores[i])
+                                                      .max()
+                                                      .orElseGet(() -> 0)));
     }
 
     /** Returns the media that matches the given queries.
@@ -246,6 +247,7 @@ class MediaSorting {
      * <li> +2 if the length of the strings match. </ul>
      * <li> +3 if the first character of both strings match.
      * <li> +3 if the last character of both strings match.
+     * <li> +3 if the strings are the same.
      * <p> The returned score is the sum of the scoring rules.
      * TODO: Maybe higher rated movies should also be prioritized?
      * @param query The string to search for. <i>Should be single lowercase word</i>.
@@ -270,6 +272,10 @@ class MediaSorting {
         // Check if last characters match
         if(query.charAt(query.length() - 1) == target.charAt(target.length() - 1))
             score += 3;
+
+        // Check if strings are the same
+        if(query.equals(target))
+            score += 3; // We don't return here because we still want to check for shared characters and pairs.
 
         // Check for shared characters and shared character pairs
         {   

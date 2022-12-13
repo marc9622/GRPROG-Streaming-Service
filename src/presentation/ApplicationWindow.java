@@ -3,11 +3,15 @@ package presentation;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import domain.Media;
 import domain.User;
 
 import java.awt.Rectangle;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ApplicationWindow {
     
@@ -58,10 +62,10 @@ public class ApplicationWindow {
         frame.repaint();
     }
 
-    public void gotoHomePage(User user) {
+    public void gotoHomePage(User user, List<Media> allMedia, Function<String, List<Media>> searcher, Consumer<Media> selectMediaListener) {
         clearFrame();
 
-        homePage = new HomePage(user);
+        homePage = new HomePage(allMedia, user::getFavorites, searcher, selectMediaListener);
         frame.add(homePage.panel);
 
         frame.revalidate();
@@ -70,6 +74,7 @@ public class ApplicationWindow {
 
     private void clearFrame() {
         frame.getContentPane().removeAll();
+        if(welcomePage != null) welcomePage.disposeExtraFrames();
     }
 
     public void showError(String message) {

@@ -18,7 +18,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 public class WelcomePage {
     
@@ -93,21 +92,29 @@ public class WelcomePage {
     
     }
 
+    public void disposeExtraFrames() {
+        loginPage.dispose();
+        addUserPage.dispose();
+    }
 }
 
 class UserSelectionPanel extends JPanel {
 
-    private final SelectUserButton[] userButtons;
-
     /** Creates a new user list buttons object. */
     public UserSelectionPanel(Set<User> users, LoginPage loginPage) {
-        //panel.userList = userList;
+
+        { // Sets the layout of the panel
+            BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+            this.setLayout(layout);
+            this.setAlignmentY(CENTER_ALIGNMENT);
+        }
 
         // Creates the buttons
-        userButtons = users.stream()
-                           .sorted()
-                           .map(user -> new SelectUserButton(user.getUsername(), loginPage))
-                           .toArray(SelectUserButton[]::new);
+        final SelectUserButton[] userButtons =
+            users.stream()
+                 .sorted()
+                 .map(user -> new SelectUserButton(user.getUsername(), loginPage))
+                 .toArray(SelectUserButton[]::new);
         
         // Adds the buttons to the panel
         for(int i = 0; i < userButtons.length; i++) {
@@ -118,11 +125,6 @@ class UserSelectionPanel extends JPanel {
             if (i < userButtons.length - 1)
                 this.add(new Filler(new Dimension(10, 0), new Dimension(25, 0), new Dimension(50, 0)));
         }
-
-        // Sets the layout of the panel
-        BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
-        this.setLayout(layout);
-        this.setAlignmentY(CENTER_ALIGNMENT);
     }
 
 }
@@ -153,7 +155,6 @@ class LoginPage {
     public final JFrame frame;
 
     private final JLabel usernameLabel;
-    private final JPasswordField passwordField;
 
     public LoginPage(BiConsumer<String, String> loginListener, Runnable cancelLoginListener) {
         
@@ -163,7 +164,7 @@ class LoginPage {
         frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
 
-        Container contentPane = frame.getContentPane();
+        final Container contentPane = frame.getContentPane();
 
         { // Sets the layout of this outer panel and adds filler to the sides
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
@@ -177,7 +178,7 @@ class LoginPage {
         }
 
         // Creates inner panel so that outer panel can be centered
-        JPanel panel = new JPanel();
+        final JPanel panel = new JPanel();
         contentPane.add(panel, 1);
 
         { // Sets the layout of the inner panel
@@ -199,8 +200,8 @@ class LoginPage {
             JLabel passwordLabel = new JLabel("Password:");
             panel.add(passwordLabel);
 
-            this.passwordField = new JPasswordField(20);
-            panel.add(this.passwordField);
+            JPasswordField passwordField = new JPasswordField(20);
+            panel.add(passwordField);
 
             Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
             panel.add(bottomFiller);
@@ -209,7 +210,11 @@ class LoginPage {
             JPanel buttonPanel = new JPanel();
             
             // Creates the buttons
-            JButton loginButton = new LoginButton("Login", this::getUsername, this::getPassword, loginListener);
+            JButton loginButton = new JButton("Login") {
+                public void fireActionPerformed(ActionEvent e) {
+                    loginListener.accept(getUsername(), new String(passwordField.getPassword()));
+                }
+            };
             buttonPanel.add(loginButton);
             
             JButton cancelButton = new JButton("Cancel");
@@ -226,10 +231,6 @@ class LoginPage {
         return usernameLabel.getText();
     }
 
-    private String getPassword() {
-        return new String(passwordField.getPassword());
-    }
-
     public void show(String username) {
         usernameLabel.setText(username);
         frame.setVisible(true);
@@ -239,25 +240,9 @@ class LoginPage {
         frame.setVisible(false);
     }
 
-}
-
-class LoginButton extends JButton {
-
-    private final Supplier<String> usernameGetter;
-    private final Supplier<String> passwordGetter;
-    private final BiConsumer<String, String> loginListener;
-
-    public LoginButton(String text, Supplier<String> usernameGetter, Supplier<String> passwordGetter, BiConsumer<String, String> loginListener) {
-        super(text);
-        this.usernameGetter = usernameGetter;
-        this.passwordGetter = passwordGetter;
-        this.loginListener = loginListener;
+    public void dispose() {
+        frame.dispose();
     }
-
-    public void fireActionPerformed(ActionEvent e) {
-        loginListener.accept(usernameGetter.get(), passwordGetter.get());
-    }
-
 }
 
 class OpenAddUserButton extends JButton {
@@ -273,9 +258,6 @@ class AddUserPage {
 
     public final JFrame frame;
 
-    private final JTextField usernameField;
-    private final JPasswordField passwordField;
-
     public AddUserPage(BiConsumer<String, String> addUserListener, Runnable cancelAddUserListener) {
 
         // Creates the frame
@@ -284,7 +266,7 @@ class AddUserPage {
         frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
 
-        Container contentPane = frame.getContentPane();
+        final Container contentPane = frame.getContentPane();
 
         { // Sets the layout of this outer panel and adds filler to the sides
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
@@ -298,7 +280,7 @@ class AddUserPage {
         }
         
         // Creates inner panel so that outer panel can be centered
-        JPanel panel = new JPanel();
+        final JPanel panel = new JPanel();
         contentPane.add(panel, 1);
 
         { // Sets the layout of the inner panel
@@ -314,14 +296,14 @@ class AddUserPage {
             JLabel usernameLabel = new JLabel("Username:");
             panel.add(usernameLabel);
 
-            this.usernameField = new JTextField(20);
-            panel.add(this.usernameField);
+            JTextField usernameField = new JTextField(20);
+            panel.add(usernameField);
 
             JLabel passwordLabel = new JLabel("Password:");
             panel.add(passwordLabel);
 
-            this.passwordField = new JPasswordField(20);
-            panel.add(this.passwordField);
+            JPasswordField passwordField = new JPasswordField(20);
+            panel.add(passwordField);
 
             Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
             panel.add(bottomFiller);
@@ -330,7 +312,11 @@ class AddUserPage {
             JPanel buttonPanel = new JPanel();
             
             // Creates the buttons
-            JButton addButton = new AddUserButton("Add", this::getUsername, this::getPassword, addUserListener);
+            JButton addButton = new JButton("Add") {
+                public void fireActionPerformed(ActionEvent e) {
+                    addUserListener.accept(usernameField.getText(), new String(passwordField.getPassword()));
+                }
+            };
             buttonPanel.add(addButton);
             
             JButton cancelButton = new JButton("Cancel");
@@ -346,14 +332,6 @@ class AddUserPage {
         frame.setResizable(false);
     }
 
-    private String getUsername() {
-        return usernameField.getText();
-    }
-
-    private String getPassword() {
-        return new String(passwordField.getPassword());
-    }
-
     public void show() {
         frame.setVisible(true);
     }
@@ -362,24 +340,7 @@ class AddUserPage {
         frame.setVisible(false);
     }
 
-}
-
-class AddUserButton extends JButton {
-
-    private final Supplier<String> usernameGetter;
-    private final Supplier<String> passwordGetter;
-
-    private final BiConsumer<String, String> addUserListener;
-
-    public AddUserButton(String text, Supplier<String> usernameGetter, Supplier<String> passwordGetter, BiConsumer<String, String> addUserListener) {
-        super(text);
-        this.addUserListener = addUserListener;
-        this.usernameGetter = usernameGetter;
-        this.passwordGetter = passwordGetter;
+    public void dispose() {
+        frame.dispose();
     }
-
-    public void fireActionPerformed(ActionEvent e) {
-        addUserListener.accept(usernameGetter.get(), passwordGetter.get());
-    }
-
 }

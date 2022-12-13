@@ -42,7 +42,7 @@ public class Application {
                                        "this should never happen.", e1);
         }
         if(user.checkPassword(password)) {
-            window.gotoHomePage(user);
+            window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, null); // TODO: Add selectMediaListener
             System.out.println("Logged in as " + username + "!");
         }
         else {

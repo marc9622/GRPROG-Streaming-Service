@@ -18,7 +18,7 @@ public class MediaLibrary {
 
     /** <i>Should be non-null.</i> */
     private final Set<Media> mediaSet;
-    private transient SearchCache searchCache = new SearchCache();
+    transient private final SearchCache searchCache = new SearchCache();
 
     /** Creates an empty media library.*/
     public MediaLibrary() {
@@ -79,8 +79,8 @@ public class MediaLibrary {
      * @param parallel Whether to use concurrent search.
      * @return A set of media that matches the given query.
      */
-    public List<Media> sortBySearch(String query, boolean useCache, boolean parallel) {
-        return sortBySearch(query, mediaSet.size(), useCache, parallel);
+    public List<Media> getSortedBySearch(String query, boolean useCache, boolean parallel) {
+        return getSortedBySearch(query, mediaSet.size(), useCache, parallel);
     }
 
     /** Returns the media library sorted by the given search string.
@@ -91,8 +91,8 @@ public class MediaLibrary {
      * @param parallel Whether to use concurrent search.
      * @return A set of media that matches the given query.
      */
-    public List<Media> sortBySearch(String query, int count, boolean useCache, boolean parallel) {
-        return MediaSorting.sortBySearchQueries(mediaSet, query.split(" "), searchCache, count, useCache, parallel);
+    public List<Media> getSortedBySearch(String query, int count, boolean useCache, boolean parallel) {
+        return MediaSorting.sortBySearchQueries(mediaSet, query.split("\\s+"), searchCache, count, useCache, parallel);
     }
 
     /** Returns a sorted list of the library,
@@ -101,8 +101,16 @@ public class MediaLibrary {
      * @param sortOrder The order to sort in.
      * @return The sorted list of media.
      */
-    public List<Media> sortBy(MediaSorting.SortBy sortBy, MediaSorting.SortOrder sortOrder) {
+    public List<Media> getSortedBy(MediaSorting.SortBy sortBy, MediaSorting.SortOrder sortOrder) {
         return MediaSorting.sortMedia(mediaSet, sortBy, sortOrder);
+    }
+
+    /** Returns a sorted list of the library,
+     * using the default sorting method.
+     * @return The sorted list of media.
+     */
+    public List<Media> getSortedByDefault() {
+        return MediaSorting.sortMedia(mediaSet, MediaSorting.SortBy.DEFAULT, MediaSorting.SortOrder.DEFAULT);
     }
 
     /** Adds the given media to the library, and clears the search cache.

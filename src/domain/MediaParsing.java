@@ -30,19 +30,43 @@ public class MediaParsing {
     public static Media[] parseFiles(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
     throws IOException, InvalidStringFormatException {
         
-        // Parse the lines to media
-        Media[] linesMovies = parseLinesToMedia(FileReading.readLinesFromFile(filePathMovies), filePathMovieImages);
-        Media[] linesSeries = parseLinesToMedia(FileReading.readLinesFromFile(filePathSeries), filePathSeriesImages);
+        Media[] linesMovies = null;
+        Media[] linesSeries = null;
+
+        InvalidStringFormatException exception = null;
+        
+        // Try parse the lines to media
+        try {
+            linesMovies = parseLinesToMedia(FileReading.readLinesFromFile(filePathMovies), filePathMovieImages);
+        }
+        catch (InvalidStringFormatException e) {
+            exception = e;
+            linesMovies = e.getSuccessfullyParsed();
+        }
+
+        try {
+            linesSeries = parseLinesToMedia(FileReading.readLinesFromFile(filePathSeries), filePathSeriesImages);
+        }
+        catch (InvalidStringFormatException e) {
+            exception = e;
+            linesSeries = e.getSuccessfullyParsed();
+        }
 
         // Combine the two arrays
         Media[] lines = new Media[linesMovies.length + linesSeries.length];
         System.arraycopy(linesMovies, 0, lines, 0, linesMovies.length);
         System.arraycopy(linesSeries, 0, lines, linesMovies.length, linesSeries.length);
         
+        // If an exception was thrown, throw it now.
+        if(exception != null) {
+            exception.setSuccessfullyParsed(lines);
+            throw exception;
+        }
+
         return lines;
     }
 
-    static Media[] parseLinesToMedia(String[] lines, String imagePath) throws InvalidStringFormatException {
+    private static Media[] parseLinesToMedia(String[] lines, String imagePath) throws InvalidStringFormatException {
         return parseLinesToMedia(new String[][] {lines}, imagePath);
     }
 
@@ -52,7 +76,7 @@ public class MediaParsing {
      * @return An array of movies and series.
      * @throws InvalidStringFormatException If a string could not be parsed.
      */
-    static Media[] parseLinesToMedia(String[][] lines, String imagesPath) throws InvalidStringFormatException {
+    private static Media[] parseLinesToMedia(String[][] lines, String imagesPath) throws InvalidStringFormatException {
         if(lines.length == 0) return new Media[0];
 
         ArrayList<Media> media = new ArrayList<Media>(lines[0].length);
@@ -98,7 +122,7 @@ public class MediaParsing {
      * @return Either a Movie or Serie object. (Or null if the string is ignored.)
      * @throws InvalidStringFormatException If the string is not formatted correctly.
      */
-    static Media parseStringToMedia(String string, String imagePath) throws InvalidStringFormatException {
+    private static Media parseStringToMedia(String string, String imagePath) throws InvalidStringFormatException {
         // If the line starts with "//", it is ignored.
         if(string.startsWith("//")) return null;
 
@@ -313,9 +337,9 @@ public class MediaParsing {
      */
     public static class InvalidStringFormatException extends Exception {
 
-        private final String errorDescription;
-        private final String[] invalidStrings;
-        private final Media[] successfullyParsed;
+        private String errorDescription;
+        private String[] invalidStrings;
+        private Media[] successfullyParsed;
 
         public InvalidStringFormatException(String errorDescription, String invalidString) {
             this(errorDescription, new String[] {invalidString}, new Media[0]);
@@ -342,6 +366,11 @@ public class MediaParsing {
         public Media[] getSuccessfullyParsed() {
             return successfullyParsed;
         }
+
+        private void setSuccessfullyParsed(Media[] successfullyParsed) {
+            this.successfullyParsed = successfullyParsed;
+        }
+
     }
     
 }

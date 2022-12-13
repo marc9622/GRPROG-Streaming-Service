@@ -1,11 +1,13 @@
 package domain;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.lang.reflect.Method;
+import java.util.function.BiFunction;
 
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 import domain.MediaParsing.InvalidStringFormatException;
-import static domain.MediaParsing.parseStringToMedia;
 
 @Nested
 public class Tests {
@@ -17,13 +19,17 @@ public class Tests {
         private static final String SERIES_IMAGES_PATH = "./Data/serieforsider/";
 
         public static final Movie newTestMovie = new Movie("The Matrix", 1999, new String[] {"Action", "Sci-Fi"}, 8.7f, MOVIE_IMAGES_PATH);
-
         public static final Series newTestSerie = new Series("The Office", 2005, true, 2013, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
     
+        public static final BiFunction<String, String, Media> parseStringToMedia = (string, imagePath) -> {
+            Method method = ReflectionUtils.findMethod(MediaParsing.class, "parseStringToMedia", String.class, String.class).orElseThrow(() -> new RuntimeException("Could not find method"));
+            return (Media) ReflectionUtils.invokeMethod(method, null, string, imagePath);
+        };
+
         @Test
         void ignore() throws InvalidStringFormatException {
             Media expected = null;
-            Media actual = parseStringToMedia("// This is a comment", null);
+            Media actual = parseStringToMedia.apply("// This is a comment", null);
     
             assertEquals(expected, actual);
         }
@@ -33,7 +39,7 @@ public class Tests {
         @Test
         void movieGeneral() throws InvalidStringFormatException {
             Object expected = newTestMovie;
-            Object actual = parseStringToMedia("The Matrix; 1999; Action, Sci-fi; 8.7;", MOVIE_IMAGES_PATH);
+            Object actual = parseStringToMedia.apply("The Matrix; 1999; Action, Sci-fi; 8.7;", MOVIE_IMAGES_PATH);
     
             assertEquals(expected, actual);
         }
@@ -43,7 +49,7 @@ public class Tests {
         @Test
         void serieGeneral() throws InvalidStringFormatException {
             Object expected = newTestSerie;
-            Object actual = parseStringToMedia("The Office; 2005-2013; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+            Object actual = parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             
             assertEquals(expected, actual);
         }
@@ -51,7 +57,7 @@ public class Tests {
         @Test
         void serieStillRunningWithDash() throws InvalidStringFormatException {
             Object expected = new Series("The Office", 2005, false, 0, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
-            Object actual = parseStringToMedia("The Office; 2005-; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+            Object actual = parseStringToMedia.apply("The Office; 2005-; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             
             assertEquals(expected, actual);
         }
@@ -59,7 +65,7 @@ public class Tests {
         @Test
         void serieStillRunningWithoutDash() throws InvalidStringFormatException {
             Object expected = new Series("The Office", 2005, false, 0, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
-            Object actual = parseStringToMedia("The Office; 2005; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+            Object actual = parseStringToMedia.apply("The Office; 2005; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             
             assertEquals(expected, actual);
         }
@@ -83,12 +89,12 @@ public class Tests {
         void invalidYear() {
             // Movie
             Exception exceptionMovie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Matrix; 19a99; Action, Sci-fi; 8.7;", MOVIE_IMAGES_PATH);
+                parseStringToMedia.apply("The Matrix; 19a99; Action, Sci-fi; 8.7;", MOVIE_IMAGES_PATH);
             });
     
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 20a05-20a13; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 20a05-20a13; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessage = "Tried to parse Media, but could not parse year (int) from ";
@@ -101,12 +107,12 @@ public class Tests {
         void invalidCategory() {
             // Movie
             Exception exceptionMovie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Matrix; 1999; aAction; 8.7;", MOVIE_IMAGES_PATH);
+                parseStringToMedia.apply("The Matrix; 1999; aAction; 8.7;", MOVIE_IMAGES_PATH);
             });
     
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 2005-2013; ComedyA; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 2005-2013; ComedyA; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessage = "Tried to parse Media, but could not parse category from ";
@@ -119,12 +125,12 @@ public class Tests {
         void invalidRating() {
             // Movie
             Exception exceptionMovie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Matrix; 1999; Action, Sci-fi; 8a.7;", MOVIE_IMAGES_PATH);
+                parseStringToMedia.apply("The Matrix; 1999; Action, Sci-fi; 8a.7;", MOVIE_IMAGES_PATH);
             });
     
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 2005-2013; Comedy; 8.a9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.a9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessage = "Could not parse rating (float) from ";
@@ -137,12 +143,12 @@ public class Tests {
         void missingData() {
             // Movie
             Exception exceptionMovie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Matrix; 1999; Action, Sci-fi;", MOVIE_IMAGES_PATH);
+                parseStringToMedia.apply("The Matrix; 1999; Action, Sci-fi;", MOVIE_IMAGES_PATH);
             });
     
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 2005-2013; Comedy; 8.9;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.9;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessageMovie = "Tried to parse Media, but string ended prematurely.";
@@ -156,7 +162,7 @@ public class Tests {
         void invalidSeasons() {
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 2005-2013; Comedy; 8.9; 1a-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25, 10-25;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.9; 1a-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25, 10-25;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessage = "Tried to parse Serie, but could not parse season from ";
@@ -168,12 +174,12 @@ public class Tests {
         void tooLong() {
             // Movie
             Exception exceptionMovie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Matrix; 1999; Action, Sci-fi; 8.7; 8.7;", MOVIE_IMAGES_PATH);
+                parseStringToMedia.apply("The Matrix; 1999; Action, Sci-fi; 8.7; 8.7;", MOVIE_IMAGES_PATH);
             });
     
             // Serie
             Exception exceptionSerie = assertThrows(InvalidStringFormatException.class, () -> {
-                parseStringToMedia("The Office; 2005-2013; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
+                parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             });
     
             String expectedMessageMovie = "Tried to parse Serie, but could not parse season and length from ";

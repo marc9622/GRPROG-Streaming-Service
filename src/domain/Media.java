@@ -1,5 +1,6 @@
 package domain;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +63,6 @@ public abstract class Media {
         private static final int NULL = 0;
 
         private static final int count = 23;
-        private static final int last = count - 1;
 
         public static final ImmutableArray<String> names = new ImmutableArray<>(new String[] {
             "action", "adventure", "biography", "comedy", "crime", "drama",
@@ -93,18 +93,6 @@ public abstract class Media {
                                   .orElse(NULL);
         }
 
-        /** Returns a string representation of the category
-         * with the given bit.
-         * @param bitField The bit field, with only one bit set.
-         * @return The string representation of the category.
-         */
-        private static String getNameForSingleBit(int bitField) {
-            for(int i = 0; i < count; i++)
-                if((1 << i) == bitField)
-                    return names.get(i);
-            return null;
-        }
-
         /** Returns whether the given name is a valid category name.
          * @param name The name to check.
          * @return Whether the name is valid.
@@ -121,16 +109,35 @@ public abstract class Media {
             return (this.bitField & other.bitField) != NULL;
         }
 
+        /** Returns the indices of the categories in this list.
+         * The indices are the same as the indices in the {@link #names} array.
+         * @return The indices of the categories in this list.
+         */
+        public int[] getIndices() {
+            // Save a temporary array of the indices.
+            int[] indices = new int[count];
+
+            int index = 0;
+            for(int i = 0; i < count; i++)
+                if((this.bitField & (1 << i)) != NULL)
+                    indices[index++] = i;
+
+            int[] result = new int[index];
+            System.arraycopy(indices, 0, result, 0, index);
+            return result;
+        }
+
+        /** Returns the names of the categories in this list.
+         * @return The names of the categories in this list.
+         */
         public String[] getNames() {
             // Save a temporary array of the names.
             String[] names = new String[count];
 
             int index = 0;
-            for(int i = 0; i < last; i <<= 1) {
-                String name = getNameForSingleBit(i);
-                if(name != null)
-                    names[index++] = name;
-            }
+            for(int i = 0; i < count; i++)
+                if((this.bitField & (1 << i)) != NULL)
+                    names[index++] = CategoryList.names.get(i);
 
             String[] result = new String[index];
             System.arraycopy(names, 0, result, 0, index);
@@ -149,6 +156,10 @@ public abstract class Media {
 
             CategoryList other = (CategoryList) obj;
             return this.bitField == other.bitField;
+        }
+
+        public String toString() {
+            return Arrays.toString(getNames());
         }
     }
 

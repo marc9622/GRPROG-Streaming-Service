@@ -7,11 +7,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import data.ObjectSaving.Saveable;
+
 /** Super class for both movies and series.
  * Uses only immutable fields, to ensure that no media
  * can be changed after it has been added to the library.
 */
-public abstract class Media {
+public abstract class Media implements Saveable {
 
     public final String title;
     public final int releaseYear;

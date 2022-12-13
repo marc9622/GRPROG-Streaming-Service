@@ -16,7 +16,7 @@ import static java.awt.Component.CENTER_ALIGNMENT;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.util.Set;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class WelcomePage {
@@ -26,7 +26,7 @@ public class WelcomePage {
     private final LoginPage loginPage;
     private final AddUserPage addUserPage;
 
-    public WelcomePage(Set<User> users, BiConsumer<String, String> loginListener, BiConsumer<String, String> addUserListener) {
+    public WelcomePage(List<User> users, BiConsumer<String, String> loginListener, BiConsumer<String, String> addUserListener) {
 
         // Creates the panel
         panel = new JPanel();
@@ -101,7 +101,7 @@ public class WelcomePage {
 class UserSelectionPanel extends JPanel {
 
     /** Creates a new user list buttons object. */
-    public UserSelectionPanel(Set<User> users, LoginPage loginPage) {
+    public UserSelectionPanel(List<User> users, LoginPage loginPage) {
 
         { // Sets the layout of the panel
             BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);

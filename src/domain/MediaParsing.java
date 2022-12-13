@@ -41,7 +41,7 @@ public class MediaParsing {
         }
         catch (InvalidStringFormatException e) {
             exception = e;
-            linesMovies = e.getSuccessfullyParsed();
+            linesMovies = e.successfullyParsed;
         }
 
         try {
@@ -49,7 +49,7 @@ public class MediaParsing {
         }
         catch (InvalidStringFormatException e) {
             exception = e;
-            linesSeries = e.getSuccessfullyParsed();
+            linesSeries = e.successfullyParsed;
         }
 
         // Combine the two arrays
@@ -58,10 +58,7 @@ public class MediaParsing {
         System.arraycopy(linesSeries, 0, lines, linesMovies.length, linesSeries.length);
         
         // If an exception was thrown, throw it now.
-        if(exception != null) {
-            exception.setSuccessfullyParsed(lines);
-            throw exception;
-        }
+        if(exception != null) throw new InvalidStringFormatException(exception.errorDescription, exception.invalidStrings, lines);
 
         return lines;
     }
@@ -102,7 +99,7 @@ public class MediaParsing {
 
         // If an exception was thrown, we want to throw it after we have attempted to parse all lines.
         if(exception != null) {
-            String errorDesc = exception.getErrorDescription();
+            String errorDesc = exception.errorDescription;
             String[] invalidStringsArray = invalidStrings.toArray(new String[invalidStrings.size()]);
             throw new InvalidStringFormatException(errorDesc, invalidStringsArray, mediaArray);
         }
@@ -337,9 +334,9 @@ public class MediaParsing {
      */
     public static class InvalidStringFormatException extends Exception {
 
-        private String errorDescription;
-        private String[] invalidStrings;
-        private Media[] successfullyParsed;
+        public final String errorDescription;
+        public final String[] invalidStrings;
+        public final Media[] successfullyParsed;
 
         public InvalidStringFormatException(String errorDescription, String invalidString) {
             this(errorDescription, new String[] {invalidString}, new Media[0]);
@@ -352,22 +349,6 @@ public class MediaParsing {
             );
             this.errorDescription = errorDescription;
             this.invalidStrings = invalidStrings;
-            this.successfullyParsed = successfullyParsed;
-        }
-
-        public String getErrorDescription() {
-            return errorDescription;
-        }
-
-        public String[] getInvalidStrings() {
-            return invalidStrings;
-        }
-
-        public Media[] getSuccessfullyParsed() {
-            return successfullyParsed;
-        }
-
-        private void setSuccessfullyParsed(Media[] successfullyParsed) {
             this.successfullyParsed = successfullyParsed;
         }
 

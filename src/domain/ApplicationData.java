@@ -2,11 +2,10 @@ package domain;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import domain.MediaParsing.InvalidStringFormatException;
-import domain.UserList.UserAlreadyExistsException;
-import domain.UserList.UserDoesNotExistException;
+import domain.UserSet.UserAlreadyExistsException;
+import domain.UserSet.UserDoesNotExistException;
 
 public class ApplicationData {
 
@@ -14,20 +13,30 @@ public class ApplicationData {
     private static final String FILE_PATH_SERIES = "./Data/serier.txt";
     private static final String FILE_PATH_MOVIES_IMAGES = "./Data/filmplakater/";
     private static final String FILE_PATH_SERIES_IMAGES = "./Data/serieforsider/";
+
+    private static final String FILE_NAME_USERLIST = "allUsers";
     
-    private final UserList users;
+    private final UserSet users;
     private final MediaLibrary allMedia;
 
     public ApplicationData() {
-        users = new UserList();
+        users = new UserSet();
         allMedia = new MediaLibrary();
+    }
+
+    public void loadUsers() throws IOException, ClassNotFoundException {
+        users.loadUsersAndAdd(FILE_NAME_USERLIST);
+    }
+
+    public void saveUsers() throws IOException {
+        users.saveToFile(FILE_NAME_USERLIST);
     }
 
     public void readMedia() throws IOException, InvalidStringFormatException {
         allMedia.readMediaFromFiles(FILE_PATH_MOVIES, FILE_PATH_SERIES, FILE_PATH_MOVIES_IMAGES, FILE_PATH_SERIES_IMAGES);
     }
 
-    public Set<User> getUsers() {
+    public List<User> getUsers() {
         return users.getUsers();
     }
 
@@ -39,8 +48,8 @@ public class ApplicationData {
         users.addUser(user);
     }
 
-    public void removeUser(User user) {
-        users.removeUser(user);
+    public boolean removeUser(User user) throws UserDoesNotExistException {
+        return users.removeUser(user);
     }
 
     public List<Media> getAllMedia() {

@@ -5,8 +5,8 @@ import java.io.IOException;
 import domain.ApplicationData;
 import domain.User;
 import domain.MediaParsing.InvalidStringFormatException;
-import domain.UserList.UserAlreadyExistsException;
-import domain.UserList.UserDoesNotExistException;
+import domain.UserSet.UserAlreadyExistsException;
+import domain.UserSet.UserDoesNotExistException;
 
 public class Application {
     
@@ -15,18 +15,36 @@ public class Application {
 
     public Application() {
         data = new ApplicationData();
-        window = new ApplicationWindow();
+        window = new ApplicationWindow(() -> {
+            try {
+                data.saveUsers();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
 
-        // Read the media files
-        try {
-            data.readMedia();
-        }
-        
-        // Catch the exceptions
-        catch (IOException | InvalidStringFormatException e) {
-            System.out.println(e.getMessage());
-            
-            // TODO: Could not read files
+                // TODO: Could not save users
+            }
+        });
+
+        { // Read and load data
+            // Load the users
+            try {
+                data.loadUsers();
+            }
+            // Catch the exceptions
+            catch (IOException | ClassNotFoundException e) {
+                System.out.println(e.getMessage());
+                
+                // TODO: Could not load users
+            }
+            try {
+                data.readMedia();
+            }
+            // Catch the exceptions
+            catch (IOException | InvalidStringFormatException e) {
+                System.out.println(e.getMessage());
+                
+                // TODO: Could not read files
+            }
         }
         
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser);
@@ -37,9 +55,9 @@ public class Application {
         try {
             user = data.getUser(username);
         }
-        catch (UserDoesNotExistException e1) {
+        catch (UserDoesNotExistException e) {
             throw new RuntimeException("Could not find user with the name of :" + username + ", " +
-                                       "this should never happen.", e1);
+                                       "this should never happen.", e);
         }
         if(user.checkPassword(password)) {
             window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, null); // TODO: Add selectMediaListener

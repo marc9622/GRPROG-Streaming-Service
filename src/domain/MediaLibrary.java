@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import data.ObjectSaving.Saveable;
 import domain.MediaParsing.InvalidStringFormatException;
 import domain.MediaSorting.SearchCache;
 
@@ -14,10 +15,13 @@ import domain.MediaSorting.SearchCache;
  * <p> Use {@link #add(Media)} to add media to the library.
  * <p> Use {@link #remove(Media)} to remove media from the library. </ul>
  */
-public class MediaLibrary {
+public class MediaLibrary implements Saveable {
 
-    /** <i>Should be non-null.</i> */
+    /** The set of media in the library. */
     private final Set<Media> mediaSet;
+
+    /** The search cache. */
+    // transient means that this field will not be saved, when saving the object.
     transient private final SearchCache searchCache = new SearchCache();
 
     /** Creates an empty media library.*/
@@ -59,7 +63,7 @@ public class MediaLibrary {
         }
         // If unsuccessful, get the successfully parsed media
         catch (InvalidStringFormatException e) {
-            mediaArray = e.getSuccessfullyParsed();
+            mediaArray = e.successfullyParsed;
             exception = e;
         }
 
@@ -151,10 +155,13 @@ public class MediaLibrary {
         return mediaSet.contains(media);
     }
 
-    /** Deep-clones the media library */
+    /** Clones the media library. Media are immutable,
+     * so we don't need to clone them.
+     * @return A clone of the media library.
+    */
     public MediaLibrary clone() {
         MediaLibrary newLibrary = new MediaLibrary();
-        mediaSet.forEach(media -> newLibrary.add(media)); // Media is immutable, so no need to clone
+        mediaSet.forEach(media -> newLibrary.add(media));
         return newLibrary;
     }
     

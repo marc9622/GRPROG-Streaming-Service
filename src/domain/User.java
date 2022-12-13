@@ -2,31 +2,49 @@ package domain;
 
 import java.util.List;
 
-public class User implements Comparable<User> {
+import data.ObjectSaving.Saveable;
+
+public class User implements Comparable<User>, Saveable {
     
     /** The user's name. */
     private final String username;
 
-    /** The user's password. (Encrypted) */
+    /** The user's password. (Encrypted)
+     * @see XOREncryption
+    */
     private final String password;
 
     /** A library of the users favorite media. */
     private final MediaLibrary favorites;
 
+    /** Creates a new user with the given name and password.
+     * @param username The user's name.
+     * @param password The user's password.
+     */
     public User(String username, String password) {
         this.username = username;
         this.password = XOREncryption.encrypt(password);
         this.favorites = new MediaLibrary();
     }
 
+    /** Returns the user's name.
+     * @return The user's name.
+     */
     public String getUsername() {
         return username;
     }
 
+    /** Checks whether the given password is correct.
+     * @param password The password to check.
+     * @return Whether the given password is correct.
+     */
     public boolean checkPassword(String password) {
         return this.password.equals(XOREncryption.encrypt(password));
     }
 
+    /** A list of the user's favorites library.
+     * @return A list of the user's favorites library.
+     */
     public List<Media> getFavorites() {
         return favorites.getSortedByDefault();
     }

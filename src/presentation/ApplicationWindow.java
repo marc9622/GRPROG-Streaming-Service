@@ -7,8 +7,9 @@ import domain.Media;
 import domain.User;
 
 import java.awt.Rectangle;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -18,7 +19,7 @@ public class ApplicationWindow {
     private static final int WIDTH = 1200;
     private static final int HEIGHT = 800;
 
-    private JFrame frame;
+    private final JFrame frame;
 
     private WelcomePage welcomePage;
 
@@ -30,9 +31,14 @@ public class ApplicationWindow {
     @SuppressWarnings("unused")
     private PlaybackPage playbackPage;
 
-    public ApplicationWindow() {
+    public ApplicationWindow(Runnable onClose) {
         // Create the frame
         frame = new JFrame();
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent windowEvent) {
+                onClose.run();
+            }
+        });
 
         { // Initialize the frame
             // Get the screen size
@@ -52,7 +58,7 @@ public class ApplicationWindow {
         frame.setVisible(true);
     }
 
-    public void gotoWelcomePage(Set<User> users, BiConsumer<String, String> loginUserListener, BiConsumer<String, String> addUserListener) {
+    public void gotoWelcomePage(List<User> users, BiConsumer<String, String> loginUserListener, BiConsumer<String, String> addUserListener) {
         clearFrame();
 
         welcomePage = new WelcomePage(users, loginUserListener, addUserListener);

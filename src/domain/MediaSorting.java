@@ -244,10 +244,10 @@ class MediaSorting {
      * <p> Scoring: <ul>
      * <li> +1 for each shared character. <i>(Not necessarily at the same index)</i>
      * <li> +1 for each two characters that are next to each other in both strings.
-     * <li> +2 if the length of the strings match. </ul>
+     * <li> +2 if the length of the strings match.
      * <li> +3 if the first character of both strings match.
      * <li> +3 if the last character of both strings match.
-     * <li> +3 if the strings are the same.
+     * <li> +3 if the strings are the same. </ul>
      * <p> The returned score is the sum of the scoring rules.
      * TODO: Maybe higher rated movies should also be prioritized?
      * @param query The string to search for. <i>Should be single lowercase word</i>.
@@ -261,21 +261,24 @@ class MediaSorting {
 
         int score = 0;
 
-        // Check if strings are same length
-        if(query.length() == target.length())
-            score += 2;
-
-        // Check if first characters match
-        if(query.charAt(0) == target.charAt(0))
-            score += 3;
-
-        // Check if last characters match
-        if(query.charAt(query.length() - 1) == target.charAt(target.length() - 1))
-            score += 3;
-
         // Check if strings are the same
         if(query.equals(target))
-            score += 3; // We don't return here because we still want to check for shared characters and pairs.
+        score += 2 + 3 + 3 + 3; // +2 for same length, +3 for first char, +3 for last char, +3 for same string
+
+        // If not, check for other scoring rules.
+        else {
+            // Check if strings are same length
+            if(query.length() == target.length())
+                score += 2;
+    
+            // Check if first characters match
+            if(query.charAt(0) == target.charAt(0))
+                score += 3;
+    
+            // Check if last characters match
+            if(query.charAt(query.length() - 1) == target.charAt(target.length() - 1))
+                score += 3;
+        }
 
         // Check for shared characters and shared character pairs
         {   

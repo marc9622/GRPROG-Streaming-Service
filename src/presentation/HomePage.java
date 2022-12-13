@@ -1,7 +1,10 @@
 package presentation;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +13,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.Box.Filler;
@@ -102,7 +109,7 @@ class Header extends JPanel {
             Filler favoritesSearchFiller = new Filler(new Dimension(0, 0), new Dimension(100, 0), new Dimension(250, 0));
             this.add(favoritesSearchFiller);
 
-            SearchField searchPanel = new SearchField(new Dimension(100, 50), new Dimension(200, 50), new Dimension(300, 100),
+            SearchField searchPanel = new SearchField(new Dimension(50, 50), new Dimension(100, 50), new Dimension(150, 100),
                                                       gotoSearch, searchUpdater);
             this.add(searchPanel);
 
@@ -118,7 +125,6 @@ class SearchField extends JTextField {
     private final Runnable gotoSearch;
 
     public SearchField(Dimension minSize, Dimension prefSize, Dimension maxSize, Runnable gotoSearch, Consumer<String> searchUpdater) {
-        super();
 
         this.setMinimumSize(minSize);
         this.setPreferredSize(prefSize);
@@ -150,31 +156,130 @@ class SearchField extends JTextField {
     
 }
 
-class Catalog extends JPanel {
+class Catalog extends JScrollPane {
+
+    private final JPanel innerPanel;
 
     private final Consumer<Media> selectMediaListener;
 
     public Catalog(List<Media> media, Consumer<Media> selectMediaListener) {
-        
+
         this.selectMediaListener = selectMediaListener;
 
-        { // Sets the layout of the panel
-            FlowLayout layout = new FlowLayout(FlowLayout.CENTER, 50, 50);
+        this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.getVerticalScrollBar().setUnitIncrement(14);
+
+        { // Sets the layout of the this outer panel
+            ScrollPaneLayout layout = new ScrollPaneLayout();
             this.setLayout(layout);
-            this.setAlignmentX(CENTER_ALIGNMENT);
         }
 
-        addMediaButtons(media);
+        innerPanel = new JPanel();
+        this.viewport.add(innerPanel);
+
+        { // Sets the layout of the inner panel
+            WrapLayout layout = new WrapLayout(FlowLayout.CENTER, -1, 0);
+            innerPanel.setLayout(layout);
+            innerPanel.setAlignmentX(CENTER_ALIGNMENT);
+        }
+
+        addMediaButtonsTo(media);
+    }
+
+    /** A layout manager that will lay out components in a wrap like fashion.
+     * <p><i> Taken from https://gist.github.com/jirkapenzes/4560255 with very minor modifications.
+     * <p> Class explained in https://tips4java.wordpress.com/2008/11/06/wrap-layout/ </i>
+     */
+    private static class WrapLayout extends FlowLayout {
+        
+        public WrapLayout(int align, int hgap, int vgap) {
+            super(align, hgap, vgap);
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container target) {
+            return layoutSize(target, true);
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container target) {
+            Dimension minimum = layoutSize(target, false);
+            minimum.width -= (getHgap() + 1);
+            return minimum;
+        }
+
+        private Dimension layoutSize(Container target, boolean preferred) {
+            synchronized (target.getTreeLock()) {
+                int targetWidth = target.getSize().width;
+
+                if (targetWidth == 0)
+                    targetWidth = Integer.MAX_VALUE;
+
+                int hgap = getHgap();
+                int vgap = getVgap();
+                Insets insets = target.getInsets();
+                int horizontalInsetsAndGap = insets.left + insets.right + (hgap * 2);
+                int maxWidth = targetWidth - horizontalInsetsAndGap;
+
+                Dimension dim = new Dimension(0, 0);
+                int rowWidth = 0;
+                int rowHeight = 0;
+
+                int nmembers = target.getComponentCount();
+
+                for (int i = 0; i < nmembers; i++) {
+                    Component m = target.getComponent(i);
+
+                    if (m.isVisible()) {
+                        Dimension d = preferred ? m.getPreferredSize() : m.getMinimumSize();
+
+                        if (rowWidth + d.width > maxWidth) {
+                            addRow(dim, rowWidth, rowHeight);
+                            rowWidth = 0;
+                            rowHeight = 0;
+                        }
+
+                        if (rowWidth != 0)
+                            rowWidth += hgap;
+
+                        rowWidth += d.width;
+                        rowHeight = Math.max(rowHeight, d.height);
+                    }
+                }
+
+                addRow(dim, rowWidth, rowHeight);
+
+                dim.width += horizontalInsetsAndGap;
+                dim.height += insets.top + insets.bottom + vgap * 2;
+
+                Container scrollPane = SwingUtilities.getAncestorOfClass(JScrollPane.class, target);
+                if (scrollPane != null)
+                    dim.width -= (hgap + 1);
+
+                return dim;
+            }
+        }
+
+        private void addRow(Dimension dim, int rowWidth, int rowHeight) {
+            dim.width = Math.max(dim.width, rowWidth);
+
+            if (dim.height > 0)
+                dim.height += getVgap();
+
+            dim.height += rowHeight;
+        }
     }
 
     // Creates the media panels
-    private void addMediaButtons(List<Media> media) {
-        media.forEach(m -> this.add(new MediaPanel(m, selectMediaListener)));
+    private void addMediaButtonsTo(List<Media> media) {
+        this.invalidate();
+        media.forEach(m -> innerPanel.add(new MediaPanel(m, selectMediaListener)));
+        this.validate();
     }
 
     public void replaceMediaWith(List<Media> media) {
-        this.removeAll();
-        addMediaButtons(media);
+        innerPanel.removeAll();
+        addMediaButtonsTo(media);
         this.revalidate();
         this.repaint();
     }
@@ -190,14 +295,29 @@ class MediaPanel extends JPanel {
             this.setLayout(layout);
             this.setAlignmentX(CENTER_ALIGNMENT);
         }
-
+        
         { // Creates and adds the components to the panel
-            JButton button = new JButton(media.title) { // Set the image here
+            JButton button = new JButton(new ImageIcon(media.imagePath)) {
                 public void fireActionPerformed(ActionEvent event) {
                     selectMediaListener.accept(media);
                 }
             };
+            button.setAlignmentX(CENTER_ALIGNMENT);
+            button.setHorizontalTextPosition(JButton.CENTER);
+            button.setVerticalTextPosition(JButton.CENTER);
+            button.setMargin(new Insets(0, 0, 0, 0));
+            button.setOpaque(false);
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(false);
             this.add(button);
+
+            JLabel label = new JLabel(media.title) {
+                public Dimension getPreferredSize() {
+                    return new Dimension(button.getPreferredSize().width, super.getPreferredSize().height);
+                }
+            };
+            label.setAlignmentX(CENTER_ALIGNMENT);
+            this.add(label);
         }
 
     }

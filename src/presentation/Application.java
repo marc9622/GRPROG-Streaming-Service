@@ -5,6 +5,9 @@ import java.io.IOException;
 import domain.ApplicationData;
 import domain.User;
 import domain.MediaParsing.InvalidStringFormatException;
+import domain.User.InvalidImagePathException;
+import domain.User.InvalidPasswordException;
+import domain.User.InvalidUsernameException;
 import domain.UserSet.UserAlreadyExistsException;
 import domain.UserSet.UserDoesNotExistException;
 
@@ -47,7 +50,7 @@ public class Application {
             }
         }
         
-        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser);
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
     private void loginUser(String username, String password) {
@@ -68,14 +71,28 @@ public class Application {
         }
     }
 
-    private void addUser(String username, String password) {
+    private void addUser(String username, String password, String confirmPassword, String imagePath) {
+        if(!password.equals(confirmPassword)) {
+            window.showError("Passwords do not match");
+            return;
+        }
         try {
-            data.addUser(new User(username, password));
+            data.addUser(new User(username, password, imagePath));
         }
-        catch (UserAlreadyExistsException e1) {
-            window.showError(e1.getMessage());
+        catch (UserAlreadyExistsException | InvalidUsernameException | InvalidPasswordException | InvalidImagePathException e) {
+            window.showError(e.getMessage());
         }
-        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser);
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
+    }
+
+    private void deleteUser(String username) {
+        try {
+            data.removeUser(username);
+        }
+        catch (UserDoesNotExistException e) {
+            window.showError(e.getMessage());
+        }
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
 }

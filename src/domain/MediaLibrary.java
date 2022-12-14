@@ -25,7 +25,7 @@ public class MediaLibrary implements Saveable {
     transient private final SearchCache searchCache = new SearchCache();
 
     /** Creates an empty media library.*/
-    public MediaLibrary() {
+    MediaLibrary() {
         mediaSet = new HashSet<>();
     }
 
@@ -35,7 +35,7 @@ public class MediaLibrary implements Saveable {
      * @throws IOException If the files could not be read.
      * @throws MediaParsing.InvalidStringFormatException If the files are not formatted correctly.
      */
-    public static MediaLibrary parseMediaLibrary(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
+    static MediaLibrary parseMediaLibrary(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
     throws IOException, InvalidStringFormatException {
 
         MediaLibrary library = new MediaLibrary();
@@ -52,7 +52,7 @@ public class MediaLibrary implements Saveable {
      * @throws MediaParsing.InvalidStringFormatException If the files are not formatted correctly.
      * <i>All successfully parsed media will still be added to the library.</i>
      */
-    public void readMediaFromFiles(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
+    void readMediaFromFiles(String filePathMovies, String filePathSeries, String filePathMovieImages, String filePathSeriesImages)
     throws IOException, InvalidStringFormatException {
 
         Media[] mediaArray;
@@ -83,7 +83,7 @@ public class MediaLibrary implements Saveable {
      * @param parallel Whether to use concurrent search.
      * @return A set of media that matches the given query.
      */
-    public List<Media> getSortedBySearch(String query, boolean useCache, boolean parallel) {
+    List<Media> getSortedBySearch(String query, boolean useCache, boolean parallel) {
         return getSortedBySearch(query, mediaSet.size(), useCache, parallel);
     }
 
@@ -95,7 +95,7 @@ public class MediaLibrary implements Saveable {
      * @param parallel Whether to use concurrent search.
      * @return A set of media that matches the given query.
      */
-    public List<Media> getSortedBySearch(String query, int count, boolean useCache, boolean parallel) {
+    List<Media> getSortedBySearch(String query, int count, boolean useCache, boolean parallel) {
         return MediaSorting.sortBySearchQueries(mediaSet, query.split("\\s+"), searchCache, count, useCache, parallel);
     }
 
@@ -105,7 +105,7 @@ public class MediaLibrary implements Saveable {
      * @param sortOrder The order to sort in.
      * @return The sorted list of media.
      */
-    public List<Media> getSortedBy(MediaSorting.SortBy sortBy, MediaSorting.SortOrder sortOrder) {
+    List<Media> getSortedBy(MediaSorting.SortBy sortBy, MediaSorting.SortOrder sortOrder) {
         return MediaSorting.sortMedia(mediaSet, sortBy, sortOrder);
     }
 
@@ -113,14 +113,14 @@ public class MediaLibrary implements Saveable {
      * using the default sorting method.
      * @return The sorted list of media.
      */
-    public List<Media> getSortedByDefault() {
+    List<Media> getSortedByDefault() {
         return MediaSorting.sortMedia(mediaSet, MediaSorting.SortBy.DEFAULT, MediaSorting.SortOrder.DEFAULT);
     }
 
     /** Adds the given media to the library, and clears the search cache.
      * @param media The media to add.
      */
-    public void add(Media media) {
+    void add(Media media) {
         mediaSet.add(media);
         searchCache.clear();
     }
@@ -128,7 +128,7 @@ public class MediaLibrary implements Saveable {
     /** Adds all media in the given library to this library, and clears the search cache.
      * @param media The set of media to add.
      */
-    public void addAll(MediaLibrary media) {
+    void addAll(MediaLibrary media) {
         mediaSet.addAll(media.mediaSet);
         searchCache.clear();
     }
@@ -136,13 +136,13 @@ public class MediaLibrary implements Saveable {
     /** Removes the given media from the library, and clears the search cache.
      * @param media The media to remove.
      */
-    public void remove(Media media) {
+    void remove(Media media) {
         mediaSet.remove(media);
         searchCache.clear();
     }
 
     /** Clears the library, and clears the search cache. */
-    public void removeAll() {
+    void removeAll() {
         mediaSet.clear();
         searchCache.clear();
     }
@@ -151,7 +151,7 @@ public class MediaLibrary implements Saveable {
      * @param media The media to check for.
      * @return Whether the library contains the given media.
      */
-    public boolean contains(Media media) {
+    boolean contains(Media media) {
         return mediaSet.contains(media);
     }
 

@@ -20,7 +20,7 @@ public class UserSet implements Saveable {
     private Set<User> users;
 
     /** Creates a new empty user set. */
-    public UserSet() {
+    UserSet() {
         users = new HashSet<User>();
     }
 
@@ -29,7 +29,7 @@ public class UserSet implements Saveable {
      * @throws ClassNotFoundException If the class of a serialized object cannot be found.
      * @throws IOException If an I/O error occurs.
      */
-    public static UserSet loadUserSet(String folderName) throws ClassNotFoundException, IOException {
+    static UserSet loadUserSet(String folderName) throws ClassNotFoundException, IOException {
         return ObjectSaving.loadFromFolder(UserSet.class, folderName);
     }
 
@@ -38,7 +38,7 @@ public class UserSet implements Saveable {
      * @throws ClassNotFoundException If the class of a serialized object cannot be found.
      * @throws IOException If an I/O error occurs.
      */
-    public void loadUsersAndAdd(String folderName) throws ClassNotFoundException, IOException {
+    void loadUsersAndAdd(String folderName) throws ClassNotFoundException, IOException {
         UserSet loadedUsers = loadUserSet(folderName);
         users.addAll(loadedUsers.users);
     }
@@ -46,7 +46,7 @@ public class UserSet implements Saveable {
     /** Returns an unmodifiable list of all users.
      * @return An unmodifiable list of all users.
      */
-    public List<User> getUsers() {
+    List<User> getUsers() {
         return List.copyOf(users);
     }
 
@@ -55,7 +55,7 @@ public class UserSet implements Saveable {
      * @return The user with the given name.
      * @throws UserDoesNotExistException If the user does not exist.
      */
-    public User getUser(String username) throws UserDoesNotExistException {
+    User getUser(String username) throws UserDoesNotExistException {
         User user = users.stream()
                          .filter(u -> u.getUsername().equals(username))
                          .findFirst()
@@ -71,7 +71,7 @@ public class UserSet implements Saveable {
      * @param user The user to add.
      * @throws UserAlreadyExistsException If the user already exists.
      */
-    public void addUser(User user) throws UserAlreadyExistsException {
+    void addUser(User user) throws UserAlreadyExistsException {
         if(users.contains(user))
             throw new UserAlreadyExistsException("User already exists");
 
@@ -82,7 +82,7 @@ public class UserSet implements Saveable {
      * @param user The user to remove.
      * @return Whether the user was removed.
      */
-    public boolean removeUser(User user) throws UserDoesNotExistException {
+    boolean removeUser(User user) throws UserDoesNotExistException {
         if(!users.contains(user))
             throw new UserDoesNotExistException("User does not exist");
 
@@ -93,7 +93,7 @@ public class UserSet implements Saveable {
      * @param username The name of the user to remove.
      * @return Whether the user was removed.
      */
-    public boolean removeUser(String username) throws UserDoesNotExistException {
+    boolean removeUser(String username) throws UserDoesNotExistException {
         if(!users.removeIf(u -> u.getUsername().equals(username)))
             throw new UserDoesNotExistException("User does not exist");
         return true;

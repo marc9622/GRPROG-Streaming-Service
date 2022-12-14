@@ -48,8 +48,8 @@ public class ApplicationData {
         users.addUser(user);
     }
 
-    public boolean removeUser(User user) throws UserDoesNotExistException {
-        return users.removeUser(user);
+    public boolean removeUser(String username) throws UserDoesNotExistException {
+        return users.removeUser(username);
     }
 
     public List<Media> getAllMedia() {

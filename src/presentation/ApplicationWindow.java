@@ -5,6 +5,7 @@ import javax.swing.JOptionPane;
 
 import domain.Media;
 import domain.User;
+import presentation.AddUserPage.QuadStringConsumer;
 
 import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
@@ -58,10 +59,10 @@ public class ApplicationWindow {
         frame.setVisible(true);
     }
 
-    public void gotoWelcomePage(List<User> users, BiConsumer<String, String> loginUserListener, BiConsumer<String, String> addUserListener) {
+    public void gotoWelcomePage(List<User> users, BiConsumer<String, String> loginUserListener, QuadStringConsumer addUserListener, Consumer<String> deleteUserFunction) {
         clearFrame();
 
-        welcomePage = new WelcomePage(users, loginUserListener, addUserListener);
+        welcomePage = new WelcomePage(users, loginUserListener, addUserListener, deleteUserFunction);
         frame.add(welcomePage.panel);
 
         frame.revalidate();

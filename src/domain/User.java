@@ -1,6 +1,8 @@
 package domain;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import data.ObjectSaving.Saveable;
 
@@ -14,16 +16,45 @@ public class User implements Comparable<User>, Saveable {
     */
     private final String password;
 
+    /** The user's profile picture. */
+    private final Optional<String> imagePath;
+
     /** A library of the users favorite media. */
     private final MediaLibrary favorites;
 
     /** Creates a new user with the given name and password.
      * @param username The user's name.
      * @param password The user's password.
+     * @throws InvalidUsernameException
+     * @throws InvalidPasswordException
      */
-    public User(String username, String password) {
+    public User(String username, String password, String imagePath) throws InvalidUsernameException, InvalidPasswordException, InvalidImagePathException {
+        Objects.requireNonNull(username, "The username cannot be null.");
+        Objects.requireNonNull(password, "The password cannot be null.");
+
+        // Username must not be blank
+        if(username.isBlank())
+            throw new InvalidUsernameException("The username cannot be empty.");
+
+        // Username must only contain letters, numbers and spaces
+        if(username.matches("[^a-zA-Z0-9 ]"))
+            throw new InvalidUsernameException("The username can only contain letters, numbers and spaces.");
+
+        // Username must not be longer than 20 characters
+        if(username.length() > 20)
+            throw new InvalidUsernameException("The username cannot be longer than 20 characters.");
+
+        // Password must not be blank
+        if(password.isBlank())
+            throw new InvalidPasswordException("The password cannot be empty.");
+
+        // Password must not be longer than 30 characters
+        if(password.length() > 30)
+            throw new InvalidPasswordException("The password cannot be longer than 30 characters.");
+
         this.username = username;
         this.password = XOREncryption.encrypt(password);
+        this.imagePath = Optional.ofNullable(imagePath);
         this.favorites = new MediaLibrary();
     }
 
@@ -40,6 +71,14 @@ public class User implements Comparable<User>, Saveable {
      */
     public boolean checkPassword(String password) {
         return this.password.equals(XOREncryption.encrypt(password));
+    }
+
+    /** Returns the user's profile picture.
+     * The path is stored in an optional, so it may be empty.
+     * @return The user's profile picture.
+     */
+    public Optional<String> getImagePath() {
+        return imagePath;
     }
 
     /** A list of the user's favorites library.
@@ -111,4 +150,21 @@ public class User implements Comparable<User>, Saveable {
         return username;
     }
 
+    public class InvalidUsernameException extends Exception {
+        public InvalidUsernameException(String message) {
+            super(message);
+        }
+    }
+
+    public class InvalidPasswordException extends Exception {
+        public InvalidPasswordException(String message) {
+            super(message);
+        }
+    }
+
+    public class InvalidImagePathException extends Exception {
+        public InvalidImagePathException(String message) {
+            super(message);
+        }
+    }
 }

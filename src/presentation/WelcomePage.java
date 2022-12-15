@@ -13,21 +13,21 @@ import javax.swing.JTextField;
 
 import domain.User;
 import presentation.AddUserPage.QuadStringConsumer;
+import presentation.UIUtils.*;
 
-import static java.awt.Component.CENTER_ALIGNMENT;
-
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static presentation.UIConstants.*;
 
 public class WelcomePage {
     
@@ -46,12 +46,12 @@ public class WelcomePage {
     public WelcomePage(List<User> users, BiConsumer<String, String> loginFunction, QuadStringConsumer addUserFunction, Consumer<String> deleteUserFunction) {
 
         // Creates the panel
-        panel = new JPanel();
+        panel = new BackgroundPanel(Images.BACKGROUND());
 
         { // Sets the layout of the panel
             BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
             panel.setLayout(layout);
-            panel.setAlignmentX(CENTER_ALIGNMENT);
+            panel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
         }
 
         // Creates the login page
@@ -61,39 +61,39 @@ public class WelcomePage {
         addUserPage = new AddUserPage(addUserFunction);
 
         { // Creates and adds the components to the panel
-            panel.add(FILLER_VERTICAL_MEDIUM());
+            panel.add(Fillers.VERTICAL_MEDIUM());
 
             JLabel welcomeLabel = new JLabel("Welcome to");
-            welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
-            welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(FONT_SIZE_LARGE));
+            welcomeLabel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+            welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(Fonts.SIZE_LARGE));
             panel.add(welcomeLabel);
 
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             JLabel titleLabel = new JLabel("1234 Movies");
-            titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-            titleLabel.setFont(titleLabel.getFont().deriveFont(FONT_SIZE_TITLE));
+            titleLabel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+            titleLabel.setFont(titleLabel.getFont().deriveFont(Fonts.SIZE_TITLE));
             panel.add(titleLabel);
 
-            panel.add(FILLER_VERTICAL_LARGE());
+            panel.add(Fillers.VERTICAL_LARGE());
 
             JLabel selectLabel = new JLabel("Select a user");
-            selectLabel.setAlignmentX(CENTER_ALIGNMENT);
-            selectLabel.setFont(selectLabel.getFont().deriveFont(FONT_SIZE_LARGE));
+            selectLabel.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+            selectLabel.setFont(selectLabel.getFont().deriveFont(Fonts.SIZE_LARGE));
             panel.add(selectLabel);
 
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             UserSelectionPanel userListButtons = new UserSelectionPanel(users, loginPage::show);
             panel.add(userListButtons);
 
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             OpenAddUserButton addUserButton = new OpenAddUserButton("Add User", addUserPage::show);
-            addUserButton.setAlignmentX(CENTER_ALIGNMENT);
+            addUserButton.setAlignmentX(JPanel.CENTER_ALIGNMENT);
             panel.add(addUserButton);
 
-            panel.add(FILLER_VERTICAL_LARGE());
+            panel.add(Fillers.VERTICAL_LARGE());
         }
     
     }
@@ -115,6 +115,8 @@ class UserSelectionPanel extends JPanel {
             this.setAlignmentY(CENTER_ALIGNMENT);
         }
 
+        this.setOpaque(false);
+
         // Creates the buttons
         final SelectUserButton[] userButtons =
             users.stream()
@@ -128,7 +130,7 @@ class UserSelectionPanel extends JPanel {
 
             // Adds a filler between the buttons
             if (i < userButtons.length - 1)
-                this.add(FILLER_HORIZONTAL_SMALL());
+                this.add(Fillers.HORIZONTAL_SMALL());
         }
     }
 
@@ -164,6 +166,7 @@ class SelectUserButton extends JButton {
 
         // Sets the text of the button
         this.setText(username);
+        this.setForeground(Color.WHITE);
         this.setHorizontalTextPosition(CENTER);
         this.setVerticalTextPosition(BOTTOM);
 
@@ -190,20 +193,22 @@ class LoginPage {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        final Container contentPane = frame.getContentPane();
+        final Container contentPane = new BackgroundPanel(Images.BACKGROUND());
+        frame.setContentPane(contentPane);
 
         { // Sets the layout of this outer panel and adds filler to the sides
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
             contentPane.setLayout(layout);
 
             // Left Filler
-            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            contentPane.add(Fillers.HORIZONTAL_MEDIUM());
             // Right Filler
-            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            contentPane.add(Fillers.HORIZONTAL_MEDIUM());
         }
 
         // Creates inner panel so that outer panel can be centered
         final JPanel panel = new JPanel();
+        panel.setOpaque(false);
         contentPane.add(panel, 1);
 
         { // Sets the layout of the inner panel
@@ -213,14 +218,14 @@ class LoginPage {
         }
 
         { // Creates and adds the components to the panel
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             JLabel usernameLabel = new JLabel("Username:");
             usernameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(usernameLabel);
 
             actualNameLabel = new JLabel("");
-            actualNameLabel.setFont(actualNameLabel.getFont().deriveFont(FONT_SIZE_MEDIUM));
+            actualNameLabel.setFont(actualNameLabel.getFont().deriveFont(Fonts.SIZE_MEDIUM));
             actualNameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(actualNameLabel);
 
@@ -233,10 +238,11 @@ class LoginPage {
             passwordField.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(passwordField);
 
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             { // Creates the buttons panel
                 JPanel buttonPanel = new JPanel();
+                buttonPanel.setOpaque(false);
                 buttonPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
                 panel.add(buttonPanel);
                 
@@ -248,7 +254,7 @@ class LoginPage {
                 };
                 buttonPanel.add(loginButton);
 
-                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
+                buttonPanel.add(Fillers.HORIZONTAL_SMALL());
 
                 JButton deleteButton = new JButton("Delete") {
                     public void fireActionPerformed(ActionEvent e) {
@@ -257,14 +263,14 @@ class LoginPage {
                 };
                 buttonPanel.add(deleteButton);
                 
-                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
+                buttonPanel.add(Fillers.HORIZONTAL_SMALL());
 
                 JButton cancelButton = new JButton("Cancel");
                 cancelButton.addActionListener(e -> hideAndClear());
                 buttonPanel.add(cancelButton);
             }
         
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
         }
 
         // Sets the frame properties
@@ -313,20 +319,22 @@ class AddUserPage {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        final Container contentPane = frame.getContentPane();
+        final Container contentPane = new BackgroundPanel(Images.BACKGROUND());
+        frame.setContentPane(contentPane);
 
         { // Sets the layout of this outer panel and adds filler to the sides
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
             contentPane.setLayout(layout);
 
             // Left Filler
-            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            contentPane.add(Fillers.HORIZONTAL_MEDIUM());
             // Right Filler
-            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            contentPane.add(Fillers.HORIZONTAL_MEDIUM());
         }
         
         // Creates inner panel so that outer panel can be centered
         final JPanel panel = new JPanel();
+        panel.setOpaque(false);
         contentPane.add(panel, 1);
 
         { // Sets the layout of the inner panel
@@ -336,7 +344,7 @@ class AddUserPage {
         }
 
         { // Creates and adds the components to the panel
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             JLabel usernameLabel = new JLabel("Username:");
             usernameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
@@ -364,6 +372,7 @@ class AddUserPage {
 
             { // Creates panel for the imageChooser and imageLabel
                 JPanel imagePanel = new JPanel();
+                imagePanel.setOpaque(false);
                 imagePanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
                 panel.add(imagePanel);
 
@@ -385,7 +394,41 @@ class AddUserPage {
                         imageLabel.setToolTipText(imageChooser.getSelectedFile().getAbsolutePath());
                     }
                 });
-
+                
+                { // Sets the imageChooser to be transparent
+                    // Prints the amount of containers in the imageChooser recursively
+                    // var printContainers = new BiConsumer<Component, Integer>() {
+                    //     public void accept(Component component, Integer indent) {
+                    //         if(component instanceof Container container) {
+                    //             for(int i = 0; i < container.getComponentCount(); i++) {
+                    //                 System.out.println("    ".repeat(indent) + "(" + i + ")" + container.getComponent(i).getClass().getSimpleName());
+                    //                 accept(container.getComponent(i), indent + 1);
+                    //             }
+                    //         }
+                    //         else System.out.println("    ".repeat(indent) + "(" + 0 + ")" + component.getClass().getSimpleName());
+                    //     }
+                    // };
+                    // printContainers.accept(imageChooser, 0);
+                    
+                    var setOpaqueFalse = new BiConsumer<Component, int[]>() {
+                        public void accept(Component component, int[] index) {
+                            if(index.length == 0) {
+                                if(component instanceof JPanel panel)
+                                panel.setOpaque(false);
+                            }
+                            else if(component instanceof Container container)
+                            accept(container.getComponent(index[0]), Arrays.copyOfRange(index, 1, index.length));
+                        }
+                    };
+                    
+                    setOpaqueFalse.accept(imageChooser, new int[] {0});
+                    setOpaqueFalse.accept(imageChooser, new int[] {0, 0});
+                    setOpaqueFalse.accept(imageChooser, new int[] {3});
+                    setOpaqueFalse.accept(imageChooser, new int[] {3, 0});
+                    setOpaqueFalse.accept(imageChooser, new int[] {3, 2});
+                    setOpaqueFalse.accept(imageChooser, new int[] {3, 3});
+                }
+                
                 // Sets the size of the button
                 imageLabel.setPreferredSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT + 50));
                 imageLabel.setMaximumSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT + 50));
@@ -400,10 +443,11 @@ class AddUserPage {
                 imagePanel.add(imageChooser);
             }
 
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
 
             { // Creates the buttons panel
                 JPanel buttonPanel = new JPanel();
+                buttonPanel.setOpaque(false);
                 buttonPanel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
                 panel.add(buttonPanel);
                 
@@ -421,14 +465,14 @@ class AddUserPage {
                 };
                 buttonPanel.add(addButton);
                 
-                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
+                buttonPanel.add(Fillers.HORIZONTAL_SMALL());
 
                 JButton cancelButton = new JButton("Cancel");
                 cancelButton.addActionListener(e -> hideAndClear());
                 buttonPanel.add(cancelButton);
             }
         
-            panel.add(FILLER_VERTICAL_SMALL());
+            panel.add(Fillers.VERTICAL_SMALL());
         }
 
         // Sets the frame properties

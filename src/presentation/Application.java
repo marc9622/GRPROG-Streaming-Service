@@ -63,12 +63,16 @@ public class Application {
                                        "this should never happen.", e);
         }
         if(user.checkPassword(password)) {
-            window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, null); // TODO: Add selectMediaListener
+            window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, null, this::logoutUser); // TODO: Add selectMediaListener
             System.out.println("Logged in as " + username + "!");
         }
         else {
             window.showError("Incorrect password");
         }
+    }
+
+    private void logoutUser() {
+        window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
     private void addUser(String username, String password, String confirmPassword, String imagePath) {

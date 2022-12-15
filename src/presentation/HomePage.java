@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import static presentation.UIConstants.*;
+import presentation.UIUtils.*;
 
 import domain.Media;
 
@@ -35,8 +35,9 @@ public class HomePage {
     private final Header header;
     private final Catalog catalog;
 
-    public HomePage(List<Media> allMedia, Supplier<List<Media>> favoritesGetter, Function<String, List<Media>> searcher, Consumer<Media> selectMediaListener) {
-        this.panel = new JPanel();
+    public HomePage(List<Media> allMedia, Supplier<List<Media>> favoritesGetter, Function<String, List<Media>> searcher,
+                    Consumer<Media> selectMediaListener, Runnable logoff) {
+        this.panel = new BackgroundPanel(Images.BACKGROUND());
 
         { // Sets the layout of the panel
             BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
@@ -49,9 +50,9 @@ public class HomePage {
         header = new Header(() -> gotoOverview(allMedia),
                             () -> gotoFavorites(favoritesGetter.get()),
                             () -> gotoSearch(),
-                             s -> updateSearch(searcher.apply(s)));
+                             s -> updateSearch(searcher.apply(s)),
+                            logoff);
         panel.add(header, 0);
-
     }
 
     private void gotoOverview(List<Media> allMedia) {
@@ -77,8 +78,10 @@ public class HomePage {
 
 class Header extends JPanel {
 
-    public Header(Runnable gotoOverview, Runnable gotoFavorites, Runnable gotoSearch, Consumer<String> searchUpdater) {
+    public Header(Runnable gotoOverview, Runnable gotoFavorites, Runnable gotoSearch, Consumer<String> searchUpdater, Runnable logoutListener) {
         super();
+
+        this.setOpaque(false);
 
         { // Sets the layout of the panel
             BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
@@ -87,30 +90,36 @@ class Header extends JPanel {
         }
 
         { // Creates and adds the components to the panel
-            this.add(FILLER_HORIZONTAL_SMALL());
+            this.add(Fillers.HORIZONTAL_SMALL());
 
             JLabel logo = new JLabel("1234 Movies"); // Set the logo image here
             this.add(logo);
 
-            this.add(FILLER_HORIZONTAL_LARGE());
+            this.add(Fillers.HORIZONTAL_LARGE());
 
             JButton overview = new JButton("Overview");
             overview.addActionListener(e -> gotoOverview.run());
             this.add(overview);
 
-            this.add(FILLER_HORIZONTAL_LARGE());
+            this.add(Fillers.HORIZONTAL_LARGE());
 
             JButton favorites = new JButton("Favorites");
             favorites.addActionListener(e -> gotoFavorites.run());
             this.add(favorites);
 
-            this.add(FILLER_HORIZONTAL_LARGE());
+            this.add(Fillers.HORIZONTAL_LARGE());
 
-            SearchField searchPanel = new SearchField(new Dimension(50, 50), new Dimension(100, 50), new Dimension(150, 100),
+            SearchField searchPanel = new SearchField(new Dimension(75, 50), new Dimension(150, 50), new Dimension(250, 100),
                                                       gotoSearch, searchUpdater);
             this.add(searchPanel);
 
-            this.add(FILLER_HORIZONTAL_SMALL());
+            this.add(Fillers.HORIZONTAL_LARGE());
+
+            JButton logOut = new JButton("Log Out");
+            logOut.addActionListener(e -> logoutListener.run());
+            this.add(logOut);
+
+            this.add(Fillers.HORIZONTAL_SMALL());
         }
     }
 
@@ -159,8 +168,10 @@ class Catalog extends JScrollPane {
     private final Consumer<Media> selectMediaListener;
 
     public Catalog(List<Media> media, Consumer<Media> selectMediaListener) {
-
         this.selectMediaListener = selectMediaListener;
+
+        this.setOpaque(false);
+        this.viewport.setOpaque(false);
 
         this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.getVerticalScrollBar().setUnitIncrement(14);
@@ -171,6 +182,7 @@ class Catalog extends JScrollPane {
         }
 
         innerPanel = new JPanel();
+        innerPanel.setOpaque(false);
         this.viewport.add(innerPanel);
 
         { // Sets the layout of the inner panel
@@ -183,20 +195,42 @@ class Catalog extends JScrollPane {
     }
 
     /** A layout manager that will lay out components in a wrap like fashion.
-     * <p><i> Taken from https://gist.github.com/jirkapenzes/4560255 with very minor modifications.
+     * <p><i> Taken from http://www.camick.com/java/source/WrapLayout.java with very minor modifications.
      * <p> Class explained in https://tips4java.wordpress.com/2008/11/06/wrap-layout/ </i>
      */
     private static class WrapLayout extends FlowLayout {
         
+        /** Creates a new flow layout manager with the indicated alignment
+         * and the indicated horizontal and vertical gaps.
+         * <p>
+         * The value of the alignment argument must be one of
+         * <code>WrapLayout</code>, <code>WrapLayout</code>,
+         * or <code>WrapLayout</code>.
+         * @param align the alignment value
+         * @param hgap the horizontal gap between components
+         * @param vgap the vertical gap between components
+         */
         public WrapLayout(int align, int hgap, int vgap) {
             super(align, hgap, vgap);
         }
 
+        /** Returns the preferred dimensions for this layout given the
+         * <i>visible</i> components in the specified target container.
+         * @param target the component which needs to be laid out
+         * @return the preferred dimensions to lay out the
+         * subcomponents of the specified container
+         */
         @Override
         public Dimension preferredLayoutSize(Container target) {
             return layoutSize(target, true);
         }
 
+        /** Returns the minimum dimensions needed to layout the <i>visible</i>
+         * components contained in the specified target container.
+         * @param target the component which needs to be laid out
+         * @return the minimum dimensions to lay out the
+         * subcomponents of the specified container
+         */
         @Override
         public Dimension minimumLayoutSize(Container target) {
             Dimension minimum = layoutSize(target, false);
@@ -204,8 +238,19 @@ class Catalog extends JScrollPane {
             return minimum;
         }
 
+        /** Returns the minimum or preferred dimension needed to layout the target
+         * container.
+         * @param target target to get layout size for
+         * @param preferred should preferred size be calculated
+         * @return the dimension to layout the target container
+         */
         private Dimension layoutSize(Container target, boolean preferred) {
             synchronized (target.getTreeLock()) {
+
+                //  Each row must fit with the width allocated to the containter.
+                //  When the container width = 0, the preferred width of the container
+                //  has not yet been calculated so lets ask for the maximum.
+
                 int targetWidth = target.getSize().width;
 
                 if (targetWidth == 0)
@@ -229,11 +274,15 @@ class Catalog extends JScrollPane {
                     if (m.isVisible()) {
                         Dimension d = preferred ? m.getPreferredSize() : m.getMinimumSize();
 
+                        //  Can't add the component to current row. Start a new row.
+
                         if (rowWidth + d.width > maxWidth) {
                             addRow(dim, rowWidth, rowHeight);
                             rowWidth = 0;
                             rowHeight = 0;
                         }
+
+                        //  Add a horizontal gap for all components after the first
 
                         if (rowWidth != 0)
                             rowWidth += hgap;
@@ -248,6 +297,11 @@ class Catalog extends JScrollPane {
                 dim.width += horizontalInsetsAndGap;
                 dim.height += insets.top + insets.bottom + vgap * 2;
 
+                //     When using a scroll pane or the DecoratedLookAndFeel we need to
+                // make sure the preferred size is less than the size of the
+                // target containter so shrinking the container size works
+                // correctly. Removing the horizontal gap is an easy way to do this.
+
                 Container scrollPane = SwingUtilities.getAncestorOfClass(JScrollPane.class, target);
                 if (scrollPane != null)
                     dim.width -= (hgap + 1);
@@ -256,6 +310,12 @@ class Catalog extends JScrollPane {
             }
         }
 
+        /** A new row has been completed. Use the dimensions of this row
+         * to update the preferred size for the container.
+         * @param dim update the width and height when appropriate
+         * @param rowWidth the width of the row to add
+         * @param rowHeight the height of the row to add
+         */
         private void addRow(Dimension dim, int rowWidth, int rowHeight) {
             dim.width = Math.max(dim.width, rowWidth);
 
@@ -285,6 +345,8 @@ class Catalog extends JScrollPane {
 class MediaPanel extends JPanel {
 
     public MediaPanel(Media media, Consumer<Media> selectMediaListener) {
+
+        this.setOpaque(false);
 
         { // Sets the layout of the panel
             BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);

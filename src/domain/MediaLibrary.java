@@ -1,5 +1,6 @@
 package domain;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,11 +23,12 @@ public class MediaLibrary implements Saveable {
 
     /** The search cache. */
     // transient means that this field will not be saved, when saving the object.
-    transient private final SearchCache searchCache = new SearchCache();
+    transient private SearchCache searchCache;
 
     /** Creates an empty media library.*/
     MediaLibrary() {
         mediaSet = new HashSet<>();
+        searchCache = new SearchCache();
     }
 
     /** Creates a new media library that contains all media in the given files.
@@ -178,6 +180,11 @@ public class MediaLibrary implements Saveable {
         if (!(obj instanceof MediaLibrary)) return false;
         MediaLibrary other = (MediaLibrary) obj;
         return mediaSet.equals(other.mediaSet);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        searchCache = new SearchCache();
     }
 
 }

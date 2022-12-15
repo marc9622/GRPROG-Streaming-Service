@@ -4,11 +4,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import data.ObjectSaving.Saveable;
+
 /** A simple wrapper class for an array that cannot be modified.
  * Keep in mind that the elements themselves can still be modified,
  * but they cannot be replaced.
 */
-public class ImmutableArray<Type> implements Iterable<Type> {
+public class ImmutableArray<Type> implements Iterable<Type>, Saveable {
     
     private final Type[] array;
 

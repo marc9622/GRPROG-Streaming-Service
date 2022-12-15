@@ -30,7 +30,7 @@ public abstract class Media implements Saveable {
      * then a bit field of {@code 00...00101} would represent
      * the categories Action and Biography, but not Adventure.
      */
-    public static final class CategoryList {
+    public static final class CategoryList implements Saveable {
 
         // #region Category constants
         /* Explanation of how the bit field and bitwise operators work:

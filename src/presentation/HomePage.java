@@ -23,7 +23,8 @@ import javax.swing.ScrollPaneLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.Box.Filler;
+
+import static presentation.UIConstants.*;
 
 import domain.Media;
 
@@ -86,35 +87,30 @@ class Header extends JPanel {
         }
 
         { // Creates and adds the components to the panel
-            Filler leftLogoFiller = new Filler(new Dimension(0, 0), new Dimension(25, 0), new Dimension(75, 0));
-            this.add(leftLogoFiller);
+            this.add(FILLER_HORIZONTAL_SMALL());
 
             JLabel logo = new JLabel("1234 Movies"); // Set the logo image here
             this.add(logo);
 
-            Filler logoOverviewFiller = new Filler(new Dimension(0, 0), new Dimension(100, 0), new Dimension(250, 0));
-            this.add(logoOverviewFiller);
+            this.add(FILLER_HORIZONTAL_LARGE());
 
             JButton overview = new JButton("Overview");
             overview.addActionListener(e -> gotoOverview.run());
             this.add(overview);
 
-            Filler overviewFavoritesFiller = new Filler(new Dimension(0, 0), new Dimension(100, 0), new Dimension(250, 0));
-            this.add(overviewFavoritesFiller);
+            this.add(FILLER_HORIZONTAL_LARGE());
 
             JButton favorites = new JButton("Favorites");
             favorites.addActionListener(e -> gotoFavorites.run());
             this.add(favorites);
 
-            Filler favoritesSearchFiller = new Filler(new Dimension(0, 0), new Dimension(100, 0), new Dimension(250, 0));
-            this.add(favoritesSearchFiller);
+            this.add(FILLER_HORIZONTAL_LARGE());
 
             SearchField searchPanel = new SearchField(new Dimension(50, 50), new Dimension(100, 50), new Dimension(150, 100),
                                                       gotoSearch, searchUpdater);
             this.add(searchPanel);
 
-            Filler searchRightFiller = new Filler(new Dimension(0, 0), new Dimension(25, 0), new Dimension(75, 0));
-            this.add(searchRightFiller);
+            this.add(FILLER_HORIZONTAL_SMALL());
         }
     }
 

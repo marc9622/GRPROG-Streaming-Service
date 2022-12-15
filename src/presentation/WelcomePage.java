@@ -1,6 +1,5 @@
 package presentation;
 
-import javax.swing.Box.Filler;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -27,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
+import static presentation.UIConstants.*;
 
 public class WelcomePage {
     
@@ -60,42 +61,39 @@ public class WelcomePage {
         addUserPage = new AddUserPage(addUserFunction);
 
         { // Creates and adds the components to the panel
-            Filler topWelcomeFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 250));
-            panel.add(topWelcomeFiller);
+            panel.add(FILLER_VERTICAL_MEDIUM());
 
             JLabel welcomeLabel = new JLabel("Welcome to");
             welcomeLabel.setAlignmentX(CENTER_ALIGNMENT);
-            welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(32f));
+            welcomeLabel.setFont(welcomeLabel.getFont().deriveFont(FONT_SIZE_LARGE));
             panel.add(welcomeLabel);
+
+            panel.add(FILLER_VERTICAL_SMALL());
 
             JLabel titleLabel = new JLabel("1234 Movies");
             titleLabel.setAlignmentX(CENTER_ALIGNMENT);
-            titleLabel.setFont(titleLabel.getFont().deriveFont(64f));
+            titleLabel.setFont(titleLabel.getFont().deriveFont(FONT_SIZE_TITLE));
             panel.add(titleLabel);
 
-            Filler titleSelectFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 250));
-            panel.add(titleSelectFiller);
+            panel.add(FILLER_VERTICAL_LARGE());
 
             JLabel selectLabel = new JLabel("Select a user");
             selectLabel.setAlignmentX(CENTER_ALIGNMENT);
-            selectLabel.setFont(selectLabel.getFont().deriveFont(32f));
+            selectLabel.setFont(selectLabel.getFont().deriveFont(FONT_SIZE_LARGE));
             panel.add(selectLabel);
 
-            Filler selectUsersFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(selectUsersFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             UserSelectionPanel userListButtons = new UserSelectionPanel(users, loginPage::show);
             panel.add(userListButtons);
 
-            Filler usersAddFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(usersAddFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             OpenAddUserButton addUserButton = new OpenAddUserButton("Add User", addUserPage::show);
             addUserButton.setAlignmentX(CENTER_ALIGNMENT);
             panel.add(addUserButton);
 
-            Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 100), new Dimension(0, 250));
-            panel.add(bottomFiller);
+            panel.add(FILLER_VERTICAL_LARGE());
         }
     
     }
@@ -130,7 +128,7 @@ class UserSelectionPanel extends JPanel {
 
             // Adds a filler between the buttons
             if (i < userButtons.length - 1)
-                this.add(new Filler(new Dimension(10, 0), new Dimension(25, 0), new Dimension(50, 0)));
+                this.add(FILLER_HORIZONTAL_SMALL());
         }
     }
 
@@ -190,7 +188,6 @@ class LoginPage {
         // Creates the frame
         frame = new JFrame("Login");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
 
         final Container contentPane = frame.getContentPane();
@@ -199,11 +196,10 @@ class LoginPage {
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
             contentPane.setLayout(layout);
 
-            Filler leftFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
-            contentPane.add(leftFiller);
-
-            Filler rightFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
-            contentPane.add(rightFiller);
+            // Left Filler
+            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            // Right Filler
+            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
         }
 
         // Creates inner panel so that outer panel can be centered
@@ -217,15 +213,14 @@ class LoginPage {
         }
 
         { // Creates and adds the components to the panel
-            Filler topFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(topFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             JLabel usernameLabel = new JLabel("Username:");
             usernameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(usernameLabel);
 
             actualNameLabel = new JLabel("");
-            actualNameLabel.setFont(actualNameLabel.getFont().deriveFont(16));
+            actualNameLabel.setFont(actualNameLabel.getFont().deriveFont(FONT_SIZE_MEDIUM));
             actualNameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(actualNameLabel);
 
@@ -233,13 +228,12 @@ class LoginPage {
             passwordLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(passwordLabel);
 
-            passwordField = new JPasswordField(20);
+            passwordField = new JPasswordField();
             passwordField.addActionListener(e -> loginFunction.accept(actualNameLabel.getText(), new String(passwordField.getPassword())));
             passwordField.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(passwordField);
 
-            Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(bottomFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             { // Creates the buttons panel
                 JPanel buttonPanel = new JPanel();
@@ -254,8 +248,7 @@ class LoginPage {
                 };
                 buttonPanel.add(loginButton);
 
-                Filler loginDeleteFiller = new Filler(new Dimension(0, 0), new Dimension(25, 0), new Dimension(50, 0));
-                buttonPanel.add(loginDeleteFiller);
+                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
 
                 JButton deleteButton = new JButton("Delete") {
                     public void fireActionPerformed(ActionEvent e) {
@@ -264,13 +257,14 @@ class LoginPage {
                 };
                 buttonPanel.add(deleteButton);
                 
-                Filler deleteCancelFiller = new Filler(new Dimension(0, 0), new Dimension(25, 0), new Dimension(50, 0));
-                buttonPanel.add(deleteCancelFiller);
+                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
 
                 JButton cancelButton = new JButton("Cancel");
                 cancelButton.addActionListener(e -> hideAndClear());
                 buttonPanel.add(cancelButton);
             }
+        
+            panel.add(FILLER_VERTICAL_SMALL());
         }
 
         // Sets the frame properties
@@ -317,7 +311,6 @@ class AddUserPage {
         // Creates the frame
         frame = new JFrame("Add User");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
 
         final Container contentPane = frame.getContentPane();
@@ -326,11 +319,10 @@ class AddUserPage {
             BoxLayout layout = new BoxLayout(contentPane, BoxLayout.X_AXIS);
             contentPane.setLayout(layout);
 
-            Filler leftFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
-            contentPane.add(leftFiller);
-
-            Filler rightFiller = new Filler(new Dimension(0, 0), new Dimension(50, 0), new Dimension(200, 0));
-            contentPane.add(rightFiller);
+            // Left Filler
+            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
+            // Right Filler
+            contentPane.add(FILLER_HORIZONTAL_MEDIUM());
         }
         
         // Creates inner panel so that outer panel can be centered
@@ -344,14 +336,13 @@ class AddUserPage {
         }
 
         { // Creates and adds the components to the panel
-            Filler topFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(topFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             JLabel usernameLabel = new JLabel("Username:");
             usernameLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(usernameLabel);
 
-            usernameField = new JTextField(20);
+            usernameField = new JTextField();
             usernameField.setAlignmentX(JTextField.LEFT_ALIGNMENT);
             panel.add(usernameField);
 
@@ -359,7 +350,7 @@ class AddUserPage {
             passwordLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(passwordLabel);
 
-            passwordField = new JPasswordField(20);
+            passwordField = new JPasswordField();
             passwordField.setAlignmentX(JTextField.LEFT_ALIGNMENT);
             panel.add(passwordField);
 
@@ -367,7 +358,7 @@ class AddUserPage {
             confirmPasswordLabel.setAlignmentX(JLabel.LEFT_ALIGNMENT);
             panel.add(confirmPasswordLabel);
 
-            confirmPasswordField = new JPasswordField(20);
+            confirmPasswordField = new JPasswordField();
             confirmPasswordField.setAlignmentX(JTextField.LEFT_ALIGNMENT);
             panel.add(confirmPasswordField);
 
@@ -409,8 +400,7 @@ class AddUserPage {
                 imagePanel.add(imageChooser);
             }
 
-            Filler bottomFiller = new Filler(new Dimension(0, 0), new Dimension(0, 25), new Dimension(0, 75));
-            panel.add(bottomFiller);
+            panel.add(FILLER_VERTICAL_SMALL());
 
             { // Creates the buttons panel
                 JPanel buttonPanel = new JPanel();
@@ -431,14 +421,14 @@ class AddUserPage {
                 };
                 buttonPanel.add(addButton);
                 
-                Filler addCancelFiller = new Filler(new Dimension(0, 0), new Dimension(25, 0), new Dimension(50, 0));
-                buttonPanel.add(addCancelFiller);
+                buttonPanel.add(FILLER_HORIZONTAL_SMALL());
 
                 JButton cancelButton = new JButton("Cancel");
                 cancelButton.addActionListener(e -> hideAndClear());
                 buttonPanel.add(cancelButton);
-                
             }
+        
+            panel.add(FILLER_VERTICAL_SMALL());
         }
 
         // Sets the frame properties

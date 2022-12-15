@@ -163,6 +163,10 @@ public abstract class Media implements Saveable {
         public String toString() {
             return Arrays.toString(getNames());
         }
+    
+        public int hashCode() {
+            return this.bitField;
+        }
     }
 
     public final String imagePath;

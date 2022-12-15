@@ -1,15 +1,10 @@
 package presentation;
 
-import java.io.IOException;
+import java.util.Optional;
 
 import domain.ApplicationData;
+import domain.Media;
 import domain.User;
-import domain.MediaParsing.InvalidStringFormatException;
-import domain.User.InvalidImagePathException;
-import domain.User.InvalidPasswordException;
-import domain.User.InvalidUsernameException;
-import domain.UserSet.UserAlreadyExistsException;
-import domain.UserSet.UserDoesNotExistException;
 
 public class Application {
     
@@ -18,57 +13,27 @@ public class Application {
 
     public Application() {
         data = new ApplicationData();
-        window = new ApplicationWindow(() -> {
-            try {
-                data.saveUsers();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+        window = new ApplicationWindow();
+        window.addOnCloseListener(() -> ErrorHandling.tryOrShowExceptionMessage(data::saveUsers, window));
 
-                // TODO: Could not save users
-            }
-        });
-
-        { // Read and load data
-            // Load the users
-            try {
-                data.loadUsers();
-            }
-            // Catch the exceptions
-            catch (IOException | ClassNotFoundException e) {
-                System.out.println(e.getMessage());
-                
-                // TODO: Could not load users
-            }
-            try {
-                data.readMedia();
-            }
-            // Catch the exceptions
-            catch (IOException | InvalidStringFormatException e) {
-                System.out.println(e.getMessage());
-                
-                // TODO: Could not read files
-            }
-        }
+        ErrorHandling.tryOrShowCustomMessage(data::loadUsers, "Failed to load users.", window);
+        ErrorHandling.tryOrShowExceptionMessage(data::readMedia, window);
         
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
     private void loginUser(String username, String password) {
-        User user;
-        try {
-            user = data.getUser(username);
-        }
-        catch (UserDoesNotExistException e) {
-            throw new RuntimeException("Could not find user with the name of :" + username + ", " +
-                                       "this should never happen.", e);
-        }
-        if(user.checkPassword(password)) {
-            window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, null, this::logoutUser); // TODO: Add selectMediaListener
-            System.out.println("Logged in as " + username + "!");
-        }
-        else {
+        final Optional<User> user = ErrorHandling.tryReturnOrShowCustomMessage(
+                                                    () -> data.getUser(username),
+                                                    "Failed to delete user: " + username,
+                                                    window);
+        if(!user.isPresent())
+            return;
+
+        if(user.get().checkPassword(password))
+            window.gotoHomePage(user.get(), data.getAllMedia(), data::searchAllMedia, this::selectMedia, this::logoutUser);
+        else
             window.showError("Incorrect password");
-        }
     }
 
     private void logoutUser() {
@@ -77,26 +42,24 @@ public class Application {
 
     private void addUser(String username, String password, String confirmPassword, String imagePath) {
         if(!password.equals(confirmPassword)) {
-            window.showError("Passwords do not match");
+            ErrorHandling.showMessage("Passwords do not match", window);
             return;
         }
-        try {
-            data.addUser(new User(username, password, imagePath));
-        }
-        catch (UserAlreadyExistsException | InvalidUsernameException | InvalidPasswordException | InvalidImagePathException e) {
-            window.showError(e.getMessage());
-        }
+
+        ErrorHandling.tryOrShowExceptionMessage(() -> data.addUser(new User(username, password, imagePath)), window);
+
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
     private void deleteUser(String username) {
-        try {
-            data.removeUser(username);
-        }
-        catch (UserDoesNotExistException e) {
-            window.showError(e.getMessage());
-        }
+        ErrorHandling.tryOrShowExceptionMessage(() -> data.removeUser(username), window);
+
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
+    private void selectMedia(Media media, User user) {
+        window.gotoInformationPage(media, user::isFavorite, user::addFavorite, user::removeFavorite,
+                                    m -> System.out.println("Playing " + m.title),
+                                   () -> window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, this::selectMedia, this::logoutUser));
+    }
 }

@@ -41,7 +41,8 @@ public class WelcomePage {
      * @param loginFunction the function to call when a user logs in.
      * The first parameter is the username, the second is the password.
      * @param addUserFunction the function to call when a user is added.
-     * The first parameter is the username, the second is the password.
+     * The parameters are the username, the password, the confirm password, and the image path.
+     * @param deleteUserFunction the function to call when a user is deleted.
      */
     public WelcomePage(List<User> users, BiConsumer<String, String> loginFunction, QuadStringConsumer addUserFunction, Consumer<String> deleteUserFunction) {
 

@@ -33,7 +33,12 @@ public class ApplicationData {
     }
 
     public void readMedia() throws IOException, InvalidStringFormatException {
-        allMedia.readMediaFromFiles(FILE_PATH_MOVIES, FILE_PATH_SERIES, FILE_PATH_MOVIES_IMAGES, FILE_PATH_SERIES_IMAGES);
+        try {
+            allMedia.readMediaFromFiles(FILE_PATH_MOVIES, FILE_PATH_SERIES, FILE_PATH_MOVIES_IMAGES, FILE_PATH_SERIES_IMAGES);
+        }
+        catch(InvalidStringFormatException e) {
+            throw new InvalidStringFormatException(e.errorDescription, e.invalidStrings[0]);
+        }
     }
 
     public List<User> getUsers() {

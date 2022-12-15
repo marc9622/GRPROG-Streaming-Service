@@ -196,7 +196,7 @@ class MediaSorting {
 
         // Creates a comparator that uses the score map to compare media.
         final Comparator<Media> scoreComparator =
-            Comparator.comparingInt((ToIntFunction<Media>)scoreMap::get) //  Have to cast to ToIntFunction for some reason. Compiler bug? >:(
+            Comparator.comparingInt((ToIntFunction<Media>)scoreMap::get)
                       .reversed()
                       .thenComparing(defaultComparator);
 

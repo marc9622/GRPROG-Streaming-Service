@@ -9,13 +9,13 @@ import java.util.stream.IntStream;
 */
 public class Series extends Media {
 
-    private final boolean isEnded;
+    public final boolean isEnded;
     
     /** <i>Should only be used if {@link #isEnded} is {@code true}</i>.*/
-    private final int endYear;
+    public final int endYear;
 
     /** The number of episodes per season in order. The indices are therefore the seasons numbers.*/
-    private final ImmutableArray<Integer> seasonLengths;
+    public final ImmutableArray<Integer> seasonLengths;
 
     /**
      * @param title The title of the serie.
@@ -37,6 +37,10 @@ public class Series extends Media {
         return IntStream.range(0, seasonLengths.length())
                         .mapToObj(i -> (i + 1) + "-" + seasonLengths.get(i))
                         .collect(Collectors.joining(", "));
+    }
+
+    public int getSeasonLength(int season) {
+        return seasonLengths.get(season - 1);
     }
 
     public String toString() {

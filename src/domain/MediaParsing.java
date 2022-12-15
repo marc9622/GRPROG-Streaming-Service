@@ -339,12 +339,15 @@ public class MediaParsing {
         public final Media[] successfullyParsed;
 
         public InvalidStringFormatException(String errorDescription, String invalidString) {
-            this(errorDescription, new String[] {invalidString}, new Media[0]);
+            super(errorDescription + ": \"" + invalidString.strip() + "\".");
+            this.errorDescription = errorDescription;
+            this.invalidStrings = new String[] {invalidString};
+            this.successfullyParsed = new Media[0];
         }
 
         public InvalidStringFormatException(String errorDescription, String[] invalidStrings, Media[] successfullyParsed) {
-            super(errorDescription + " String: '" + invalidStrings[0].strip() +
-                (invalidStrings.length == 1 ? "'" : "' and " + (invalidStrings.length - 1) + " more.") +
+            super(errorDescription + ": \"" + invalidStrings[0].strip() +
+                (invalidStrings.length == 1 ? "\"" : "\" and " + (invalidStrings.length - 1) + " more.") +
                 " Successfully parsed: " + successfullyParsed.length + " media."
             );
             this.errorDescription = errorDescription;

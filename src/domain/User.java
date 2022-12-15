@@ -16,8 +16,12 @@ public class User implements Comparable<User>, Saveable {
     */
     private final String password;
 
-    /** The user's profile picture. */
-    private final Optional<String> imagePath;
+    /** The user's profile picture.
+     * <p><b>May be null.</b>
+     * Do not access directly;
+     * use {@link #getImagePath()}.
+    */
+    private final String imagePath;
 
     /** A library of the users favorite media. */
     private final MediaLibrary favorites;
@@ -54,7 +58,7 @@ public class User implements Comparable<User>, Saveable {
 
         this.username = username;
         this.password = XOREncryption.encrypt(password);
-        this.imagePath = Optional.ofNullable(imagePath);
+        this.imagePath = imagePath;
         this.favorites = new MediaLibrary();
     }
 
@@ -78,7 +82,7 @@ public class User implements Comparable<User>, Saveable {
      * @return The user's profile picture.
      */
     public Optional<String> getImagePath() {
-        return imagePath;
+        return Optional.ofNullable(imagePath);
     }
 
     /** A list of the user's favorites library.
@@ -167,4 +171,5 @@ public class User implements Comparable<User>, Saveable {
             super(message);
         }
     }
+
 }

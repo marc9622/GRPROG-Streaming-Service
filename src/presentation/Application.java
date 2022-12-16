@@ -46,7 +46,7 @@ public class Application {
             return;
         }
 
-        ErrorHandling.tryOrShowExceptionMessage(() -> data.addUser(new User(username, password, imagePath)), window);
+        ErrorHandling.tryOrShowExceptionMessage(() -> data.addUser(username, password, imagePath), window);
 
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }

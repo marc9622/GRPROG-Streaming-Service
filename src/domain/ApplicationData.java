@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import domain.MediaParsing.InvalidStringFormatException;
+import domain.User.InvalidImagePathException;
+import domain.User.InvalidPasswordException;
+import domain.User.InvalidUsernameException;
 import domain.UserSet.UserAlreadyExistsException;
 import domain.UserSet.UserDoesNotExistException;
 
@@ -14,7 +17,7 @@ public class ApplicationData {
     private static final String FILE_PATH_MOVIES_IMAGES = "./Data/filmplakater/";
     private static final String FILE_PATH_SERIES_IMAGES = "./Data/serieforsider/";
 
-    private static final String FILE_NAME_USERLIST = "allUsers";
+    private static final String FILE_NAME_USERSET = "allUsers";
     
     private final UserSet users;
     private final MediaLibrary allMedia;
@@ -25,11 +28,11 @@ public class ApplicationData {
     }
 
     public void loadUsers() throws IOException, ClassNotFoundException {
-        users.loadUsersAndAdd(FILE_NAME_USERLIST);
+        users.loadUsersAndAdd(FILE_NAME_USERSET);
     }
 
     public void saveUsers() throws IOException {
-        users.saveToFile(FILE_NAME_USERLIST);
+        users.saveToFile(FILE_NAME_USERSET);
     }
 
     public void readMedia() throws IOException, InvalidStringFormatException {
@@ -49,8 +52,9 @@ public class ApplicationData {
         return users.getUser(username);
     }
 
-    public void addUser(User user) throws UserAlreadyExistsException {
-        users.addUser(user);
+    public void addUser(String username, String password, String imagePath)
+    throws InvalidUsernameException, InvalidPasswordException, InvalidImagePathException, UserAlreadyExistsException {
+        users.addUser(new User(username, password, imagePath));
     }
 
     public boolean removeUser(String username) throws UserDoesNotExistException {

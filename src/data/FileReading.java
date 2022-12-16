@@ -9,6 +9,8 @@ import java.nio.file.Path;
  * The file is assumed to be encoded in ISO-8859-1.
  */
 public class FileReading {
+
+    private FileReading() {}
     
     /** Finds a file in the resources folder, and returns its contents as a String array.
      * The file is assumed to be encoded in {@code ISO-8859-1},

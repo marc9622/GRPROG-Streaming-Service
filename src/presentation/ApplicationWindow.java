@@ -6,8 +6,9 @@ import javax.swing.UIManager;
 
 import domain.Media;
 import domain.User;
+import presentation.WelcomePage.QuadStringConsumer;
+
 import static presentation.UIUtils.*;
-import presentation.AddUserPage.QuadStringConsumer;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -26,11 +27,7 @@ public class ApplicationWindow {
 
     private HomePage homePage;
 
-    @SuppressWarnings("unused")
     private InformationPage informationPage;
-
-    @SuppressWarnings("unused")
-    private PlaybackPage playbackPage;
 
     public ApplicationWindow() {
 

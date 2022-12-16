@@ -13,12 +13,12 @@ import java.nio.file.Path;
 public class ObjectSaving {
     
     /** The folder to save objects to. */
-    public static final String folder = "./Saved/";
+    public static final String FOLDER = "./Saved/";
 
     // Create the folder if it does not exist.
     static {
         try {
-            Files.createDirectories(Path.of(folder));
+            Files.createDirectories(Path.of(FOLDER));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,20 +27,20 @@ public class ObjectSaving {
     // Prevent instantiation.
     private ObjectSaving() {}
 
-    /** Saves the given object to the file {@code folder + fileName + getFileExtension(object.getClass())}.
+    /** Saves the given object to the file {@code FOLDER + fileName + getFileExtension(object.getClass())}.
      * @param object The object to save.
      * @param fileName The name of the folder to save the object to.
      * @throws IOException If the file could not be written to.
      */
     public static void saveToFile(Serializable object, String fileName) throws IOException {
-        String filePath = folder + fileName + getFileExtension(object.getClass());
+        String filePath = FOLDER + fileName + getFileExtension(object.getClass());
         try(ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filePath))) {
             out.writeObject(object);
         }
     }
 
     /** Loads an object from a file.
-     * The file path is {@code folder + fileName + getFileExtension(clazz)}.
+     * The file path is {@code FOLDER + fileName + getFileExtension(clazz)}.
      * Also checks that the object is of the given class.
      * @param clazz The class of the object to load.
      * @return The object loaded from the file.
@@ -49,7 +49,7 @@ public class ObjectSaving {
      * @throws ClassCastException If the object is not of the given class.
      */
     public static <T> T loadFromFolder(Class<T> clazz, String fileName) throws IOException, ClassNotFoundException {
-        String filePath = folder + fileName + getFileExtension(clazz);
+        String filePath = FOLDER + fileName + getFileExtension(clazz);
         try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))) {
             Object object = in.readObject();
             if(clazz.isInstance(object))

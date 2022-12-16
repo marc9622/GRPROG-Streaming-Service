@@ -16,7 +16,7 @@ import domain.MediaSorting.SearchCache;
  * <p> Use {@link #add(Media)} to add media to the library.
  * <p> Use {@link #remove(Media)} to remove media from the library. </ul>
  */
-public class MediaLibrary implements Saveable {
+public class MediaLibrary implements Saveable, Cloneable {
 
     /** The set of media in the library. */
     private final Set<Media> mediaSet;

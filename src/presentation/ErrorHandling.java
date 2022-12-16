@@ -1,10 +1,10 @@
 package presentation;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 public class ErrorHandling {
-    
+    private ErrorHandling() {}
+
     public static void tryOrShowExceptionMessage(CheckedRunnable code, ApplicationWindow window) {
         try {
             code.run();
@@ -18,14 +18,6 @@ public class ErrorHandling {
             code.run();
         } catch (Exception e) {
             showMessage(message, window);
-        }
-    }
-
-    public static void tryOrUseMessageGetter(CheckedRunnable code, Function<Exception, String> messageGetter, ApplicationWindow window) {
-        try {
-            code.run();
-        } catch (Exception e) {
-            showMessage(messageGetter.apply(e), window);
         }
     }
 

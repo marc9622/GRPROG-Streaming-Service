@@ -32,7 +32,7 @@ public class User implements Comparable<User>, Saveable {
      * @throws InvalidUsernameException
      * @throws InvalidPasswordException
      */
-    public User(String username, String password, String imagePath) throws InvalidUsernameException, InvalidPasswordException, InvalidImagePathException {
+    User(String username, String password, String imagePath) throws InvalidUsernameException, InvalidPasswordException, InvalidImagePathException {
         Objects.requireNonNull(username, "The username cannot be null.");
         Objects.requireNonNull(password, "The password cannot be null.");
 

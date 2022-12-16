@@ -79,7 +79,7 @@ class MediaSorting {
      * First compares by title (alphabetically), then by year (newest first).
      * <p> TODO: Maybe make Media implement Comparable instead?
      */
-    private static Comparator<Media> defaultComparator =
+    private static final Comparator<Media> defaultComparator =
         Comparator.comparing((Function<Media, String>)(m -> m.title))
                   .thenComparing(Comparator.comparingInt((ToIntFunction<Media>)m -> m.releaseYear).reversed());
 

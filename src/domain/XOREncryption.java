@@ -5,6 +5,8 @@ class XOREncryption {
     
     private static final int defaultKey = 0x12345678;
 
+    private XOREncryption() {}
+
     /** Encrypts the given string using XOR encryption.
      * Uses the default key.
      * @param string The string to encrypt.

@@ -64,7 +64,7 @@ public abstract class Media implements Saveable {
         */
         private static final int NULL = 0;
 
-        private static final int count = 23;
+        private static final int COUNT = 23;
 
         public static final ImmutableArray<String> names = new ImmutableArray<>(new String[] {
             "action", "adventure", "biography", "comedy", "crime", "drama",
@@ -77,7 +77,7 @@ public abstract class Media implements Saveable {
         
         private static final Map<String, Integer> map = new HashMap<>() {{
             // Loop to create the map
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < COUNT; i++)
                 put(names.get(i), 1 << i);
         }};
         // #endregion
@@ -117,10 +117,10 @@ public abstract class Media implements Saveable {
          */
         public int[] getIndices() {
             // Save a temporary array of the indices.
-            int[] indices = new int[count];
+            int[] indices = new int[COUNT];
 
             int index = 0;
-            for(int i = 0; i < count; i++)
+            for(int i = 0; i < COUNT; i++)
                 if((this.bitField & (1 << i)) != NULL)
                     indices[index++] = i;
 
@@ -134,10 +134,10 @@ public abstract class Media implements Saveable {
          */
         public String[] getNames() {
             // Save a temporary array of the names.
-            String[] names = new String[count];
+            String[] names = new String[COUNT];
 
             int index = 0;
-            for(int i = 0; i < count; i++)
+            for(int i = 0; i < COUNT; i++)
                 if((this.bitField & (1 << i)) != NULL)
                     names[index++] = CategoryList.names.get(i);
 

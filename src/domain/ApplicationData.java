@@ -69,4 +69,7 @@ public class ApplicationData {
         return allMedia.getSortedBySearch(query, true, true);
     }
 
+    public List<Media> sortAllMedia(MediaSorting.SortBy sortBy) {
+        return allMedia.getSortedBy(sortBy, MediaSorting.SortOrder.DEFAULT);
+    }
 }

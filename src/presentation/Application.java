@@ -31,7 +31,8 @@ public class Application {
             return;
 
         if(user.get().checkPassword(password))
-            window.gotoHomePage(user.get(), data.getAllMedia(), data::searchAllMedia, this::selectMedia, this::logoutUser);
+            window.gotoHomePage(user.get(), data.getAllMedia(), data::sortAllMedia,
+                                data::searchAllMedia, this::selectMedia, this::logoutUser);
         else
             window.showError("Incorrect password");
     }
@@ -60,6 +61,7 @@ public class Application {
     public void selectMedia(Media media, User user) {
         window.gotoInformationPage(media, user::isFavorite, user::addFavorite, user::removeFavorite,
                                     m -> System.out.println("Playing " + m.title),
-                                   () -> window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, this::selectMedia, this::logoutUser));
+                                   () -> window.gotoHomePage(user, data.getAllMedia(), data::sortAllMedia, data::searchAllMedia,
+                                                             this::selectMedia, this::logoutUser));
     }
 }

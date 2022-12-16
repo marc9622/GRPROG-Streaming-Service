@@ -6,6 +6,7 @@ import javax.swing.UIManager;
 
 import domain.Media;
 import domain.User;
+import domain.MediaSorting.SortBy;
 import presentation.WelcomePage.QuadStringConsumer;
 
 import static presentation.UIUtils.*;
@@ -79,11 +80,11 @@ public class ApplicationWindow {
         frame.repaint();
     }
 
-    public void gotoHomePage(User user, List<Media> allMedia, Function<String, List<Media>> searcher,
+    public void gotoHomePage(User user, List<Media> allMedia, Function<SortBy, List<Media>> sorter, Function<String, List<Media>> searcher,
                              BiConsumer<Media, User> selectMediaAsUserListener, Runnable logoutListener) {
         clearFrame();
 
-        homePage = new HomePage(allMedia, user::getFavorites, searcher, media -> selectMediaAsUserListener.accept(media, user), logoutListener);
+        homePage = new HomePage(allMedia, user::getFavorites, sorter, searcher, media -> selectMediaAsUserListener.accept(media, user), logoutListener);
         frame.add(homePage.panel);
 
         frame.revalidate();

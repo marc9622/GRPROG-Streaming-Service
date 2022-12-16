@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * <p> Use {@link #sortBySearchQueries(String[], Set, SearchCache, int, boolean, boolean))} to search for media.
  * <p> Use the {@link #SearchCache} class to cache search results.
  */
-class MediaSorting {
+public class MediaSorting {
 
     /** Prevents instantiation of this class.
      * This class only contains static methods,
@@ -338,13 +338,34 @@ class MediaSorting {
     */
     public static enum SortBy {
         /** Sorts by title (alphabetically). */
-        TITLE,
+        TITLE("Title"),
         /** Sorts by year (newest first). */
-        RELEASE_YEAR,
+        RELEASE_YEAR("Release Year"),
         /** Sorts by rating (highest first). */
-        RATING,
+        RATING("Rating"),
         /** Sorts by the default comparator. */
-        DEFAULT,
+        DEFAULT("Default"),
+        /** Sorts by Movies. */
+        MOVIES("Movies"),
+        /** Sorts by Series. */
+        SERIES("Series");
+
+        /** The name of the sort. */
+        private final String name;
+
+        /** Creates a new SortBy.
+         * @param name The name of the sort.
+         */
+        SortBy(String name) {
+            this.name = name;
+        }
+
+        /** Returns the name of the sort.
+         * @return The name of the sort.
+         */
+        public String toString() {
+            return name;
+        }
     }
 
     /** An enum expression which direction to sort the media in. <ul>
@@ -370,6 +391,8 @@ class MediaSorting {
             case RELEASE_YEAR -> Comparator.comparingInt((ToIntFunction<Media>)m -> m.releaseYear).reversed(); // Newest first.
             case RATING -> Comparator.comparingDouble((ToDoubleFunction<Media>)m -> m.rating).reversed(); // Highest first.
             case DEFAULT -> defaultComparator;
+            case MOVIES -> Comparator.comparing(m -> m instanceof Movie);
+            case SERIES -> Comparator.comparing(m -> m instanceof Series);
         };
 
         if (sortOrder == SortOrder.REVERSE) comparator = comparator.reversed();

@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +30,7 @@ import javax.swing.event.DocumentListener;
 import presentation.UIUtils.*;
 
 import domain.Media;
+import domain.MediaSorting.SortBy;
 
 public class HomePage {
     
@@ -37,8 +39,8 @@ public class HomePage {
     private final Header header;
     private final Catalog catalog;
 
-    public HomePage(List<Media> allMedia, Supplier<List<Media>> favoritesGetter, Function<String, List<Media>> searcher,
-                    Consumer<Media> selectMediaListener, Runnable logoff) {
+    public HomePage(List<Media> allMedia, Supplier<List<Media>> favoritesGetter, Function<SortBy, List<Media>> sorter,
+                    Function<String, List<Media>> searcher, Consumer<Media> selectMediaListener, Runnable logoff) {
         this.panel = new BackgroundPanel(Images.BACKGROUND());
 
         { // Sets the layout of the panel
@@ -51,6 +53,7 @@ public class HomePage {
 
         header = new Header(() -> gotoOverview(allMedia),
                             () -> gotoFavorites(favoritesGetter.get()),
+                             s -> updateSort(sorter.apply(s)),
                             () -> gotoSearch(),
                              s -> updateSearch(searcher.apply(s)),
                             logoff);
@@ -67,6 +70,10 @@ public class HomePage {
         catalog.replaceMediaWith(favorites);
     }
 
+    private void updateSort(List<Media> sortResults) {
+        catalog.replaceMediaWith(sortResults);
+    }
+
     private void gotoSearch() {
         // TODO: Also update the header to show that the search is selected
         catalog.replaceMediaWith(new ArrayList<>());
@@ -78,7 +85,7 @@ public class HomePage {
 
     private static class Header extends JPanel {
 
-        public Header(Runnable gotoOverview, Runnable gotoFavorites, Runnable gotoSearch, Consumer<String> searchUpdater, Runnable logoutListener) {
+        public Header(Runnable gotoOverview, Runnable gotoFavorites, Consumer<SortBy> sortUpdater, Runnable gotoSearch, Consumer<String> searchUpdater, Runnable logoutListener) {
             super();
     
             this.setOpaque(false);
@@ -109,7 +116,13 @@ public class HomePage {
                 this.add(favorites);
     
                 this.add(Fillers.HORIZONTAL_LARGE());
+
+                SortingField sortingField = new SortingField();
+                sortingField.addActionListener(e -> sortUpdater.accept((SortBy) sortingField.getSelectedItem()));
+                this.add(sortingField);
     
+                this.add(Fillers.HORIZONTAL_LARGE());
+
                 SearchField searchField = new SearchField(new Dimension(75, 50), new Dimension(150, 50), new Dimension(250, 100),
                                                           gotoSearch, searchUpdater);
                 this.add(searchField);
@@ -125,6 +138,15 @@ public class HomePage {
             }
         }
     
+    }
+
+    private static class SortingField extends JComboBox<SortBy> {
+
+        public SortingField() {
+            super(SortBy.values());
+        }
+
+
     }
     
     private static class SearchField extends JTextField {

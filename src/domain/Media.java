@@ -1,9 +1,9 @@
 package domain;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -161,7 +161,22 @@ public abstract class Media implements Saveable {
         }
 
         public String toString() {
-            return Arrays.toString(getNames());
+            String[] names = getNames();
+
+            if(names.length == 0)
+                return "None";
+
+            UnaryOperator<String> capitalize = s -> Character.toUpperCase(s.charAt(0)) + s.substring(1);
+            
+            if(names.length == 1)
+                return capitalize.apply(names[0]);
+            return Stream.of(names)
+                         .map(capitalize)
+                         .limit(names.length - 1)
+                         .collect(Collectors.collectingAndThen(
+                                                Collectors.joining(", "),
+                                                s -> s + " and "))
+                   + capitalize.apply(names[names.length - 1]);
         }
     
         public int hashCode() {

@@ -157,6 +157,13 @@ public class MediaLibrary implements Saveable, Cloneable {
         return mediaSet.contains(media);
     }
 
+    /** Returns the number of media in the library.
+     * @return The number of media in the library.
+     */
+    int size() {
+        return mediaSet.size();
+    }
+
     /** Clones the media library. Media are immutable,
      * so we don't need to clone them.
      * @return A clone of the media library.

@@ -2,10 +2,15 @@ package domain;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.platform.commons.util.ReflectionUtils;
 
 import data.ObjectSaving;
@@ -18,15 +23,21 @@ import domain.UserSet.UserDoesNotExistException;
 
 @Nested
 public class TestsDomain {
-   
+    
+    private static final String MOVIE_IMAGES_PATH = "./Data/filmplakater/";
+    private static final String SERIES_IMAGES_PATH = "./Data/serieforsider/";
+
+    public static final Movie newTestMovie = new Movie("The Matrix", 1999, new String[] {"Action", "Sci-Fi"}, 8.7f, MOVIE_IMAGES_PATH);
+    public static final Series newTestSeries = new Series("The Office", 2005, true, 2013, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
+    
+    public static final Movie newTestMovie1 = new Movie("Inception", 2010, new String[] {"Action", "Sci-fi"}, 8.8f, MOVIE_IMAGES_PATH);
+    public static final Movie newTestMovie2 = new Movie("The Dark Knight", 2008, new String[] {"Action", "Crime", "Drama"}, 9.0f, MOVIE_IMAGES_PATH);
+    public static final Series newTestSeries1 = new Series("Breaking Bad", 2008, true, 2013, new String[] {"Crime", "Drama", "Thriller"}, 9.5f, new int[] {1, 2, 3, 4, 5}, SERIES_IMAGES_PATH);
+    public static final Series newTestSeries2 = new Series("Game of Thrones", 2011, true, 2019, new String[] {"Action", "Adventure", "Drama"}, 9.3f, new int[] {1, 2, 3, 4, 5, 6, 7, 8}, SERIES_IMAGES_PATH);
+
     @Nested
     public class TestMediaParsing {
 
-        private static final String MOVIE_IMAGES_PATH = "./Data/filmplakater/";
-        private static final String SERIES_IMAGES_PATH = "./Data/serieforsider/";
-
-        public static final Movie newTestMovie = new Movie("The Matrix", 1999, new String[] {"Action", "Sci-Fi"}, 8.7f, MOVIE_IMAGES_PATH);
-        public static final Series newTestSeries = new Series("The Office", 2005, true, 2013, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
     
         public static final BiFunction<String, String, Media> parseStringToMedia = (string, imagePath) -> {
             Method method = ReflectionUtils.findMethod(MediaParsing.class, "parseStringToMedia", String.class, String.class).orElseThrow(() -> new RuntimeException("Could not find method"));
@@ -199,11 +210,51 @@ public class TestsDomain {
     }
 
     @Nested
+    public class TestMediaSorting {
+
+        public static MediaLibrary newTestMediaLibrary() {
+            MediaLibrary mediaLibrary = new MediaLibrary();
+            mediaLibrary.add(newTestMovie);
+            mediaLibrary.add(newTestSeries);
+            mediaLibrary.add(newTestMovie1);
+            mediaLibrary.add(newTestSeries1);
+            mediaLibrary.add(newTestMovie2);
+            mediaLibrary.add(newTestSeries2);
+            return mediaLibrary;
+        }
+
+        public static Stream<Arguments> provideBooleanArguments() {
+            return Stream.of(Arguments.of(false, false), Arguments.of(false, true), Arguments.of(true, false), Arguments.of(true, true));
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideBooleanArguments")
+        void searchByTitle(boolean useCache, boolean parallel) {
+            MediaLibrary mediaLibrary = newTestMediaLibrary();
+            List<Media> searchResult = mediaLibrary.getSortedBySearch("The Matrix", useCache, parallel);
+            assertEquals(mediaLibrary.size(), searchResult.size());
+            assertEquals(newTestMovie, searchResult.get(0));
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideBooleanArguments")
+        void searchByCategory(boolean useCache, boolean parallel) {
+            MediaLibrary mediaLibrary = newTestMediaLibrary();
+            List<Media> searchResult = mediaLibrary.getSortedBySearch("Action", useCache, parallel);
+            assertEquals(mediaLibrary.size(), searchResult.size());
+            assertEquals(newTestMovie1, searchResult.get(0));
+            assertEquals(newTestMovie2, searchResult.get(1));
+            assertEquals(newTestMovie, searchResult.get(2));
+        }
+
+    }
+
+    @Nested
     public class TestSerialization {
 
         @Test
         void movieSerialization() throws IOException, ClassNotFoundException {
-            Movie movie = TestMediaParsing.newTestMovie;
+            Movie movie = newTestMovie;
     
             ObjectSaving.saveToFile(movie, "test");
     
@@ -214,7 +265,7 @@ public class TestsDomain {
 
         @Test
         void seriesSerialization() throws IOException, ClassNotFoundException {
-            Series series = TestMediaParsing.newTestSeries;
+            Series series = newTestSeries;
     
             ObjectSaving.saveToFile(series, "test");
     
@@ -226,8 +277,8 @@ public class TestsDomain {
         @Test
         void mediaLibrarySerialization() throws IOException, ClassNotFoundException {
             MediaLibrary mediaLibrary = new MediaLibrary();
-            mediaLibrary.add(TestMediaParsing.newTestMovie);
-            mediaLibrary.add(TestMediaParsing.newTestSeries);
+            mediaLibrary.add(newTestMovie);
+            mediaLibrary.add(newTestSeries);
     
             ObjectSaving.saveToFile(mediaLibrary, "test");
     
@@ -239,8 +290,8 @@ public class TestsDomain {
         @Test
         void userSerialization() throws IOException, ClassNotFoundException, InvalidUsernameException, InvalidPasswordException, InvalidImagePathException {
             User user = new User("Test1", "abc123", null);
-            user.addFavorite(TestMediaParsing.newTestMovie);
-            user.addFavorite(TestMediaParsing.newTestSeries);
+            user.addFavorite(newTestMovie);
+            user.addFavorite(newTestSeries);
     
             ObjectSaving.saveToFile(user, "test");
     
@@ -254,8 +305,8 @@ public class TestsDomain {
             UserSet userSet = new UserSet();
             userSet.addUser(new User("Test1", "abc123", null));
             userSet.addUser(new User("Test2", "abc123", null));
-            userSet.getUser("Test1").addFavorite(TestMediaParsing.newTestMovie);
-            userSet.getUser("Test2").addFavorite(TestMediaParsing.newTestSeries);
+            userSet.getUser("Test1").addFavorite(newTestMovie);
+            userSet.getUser("Test2").addFavorite(newTestSeries);
 
             ObjectSaving.saveToFile(userSet, "test");
 

@@ -58,10 +58,10 @@ public class TestsPresentation {
             assertNotNull(user);
 
             // We have to use our own test media.
-            Media media1 = domain.TestsDomain.TestMediaParsing.newTestMovie;
+            Media media1 = domain.TestsDomain.newTestMovie;
             assertNotNull(media1);
 
-            Media media2 = domain.TestsDomain.TestMediaParsing.newTestSeries;
+            Media media2 = domain.TestsDomain.newTestSeries;
             assertNotNull(media2);
 
             app.selectMedia(media1, user);
@@ -153,10 +153,10 @@ public class TestsPresentation {
             User user = data.getUser("Test1");
             assertNotNull(user);
 
-            Media media1 = domain.TestsDomain.TestMediaParsing.newTestMovie;
+            Media media1 = domain.TestsDomain.newTestMovie;
             assertNotNull(media1);
 
-            Media media2 = domain.TestsDomain.TestMediaParsing.newTestSeries;
+            Media media2 = domain.TestsDomain.newTestSeries;
             assertNotNull(media2);
 
             assertTrue(user.getFavorites().size() == 0);

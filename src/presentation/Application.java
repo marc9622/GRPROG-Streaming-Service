@@ -22,7 +22,7 @@ public class Application {
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
-    private void loginUser(String username, String password) {
+    public void loginUser(String username, String password) {
         final Optional<User> user = ErrorHandling.tryReturnOrShowCustomMessage(
                                                     () -> data.getUser(username),
                                                     "Failed to delete user: " + username,
@@ -36,11 +36,11 @@ public class Application {
             window.showError("Incorrect password");
     }
 
-    private void logoutUser() {
+    public void logoutUser() {
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
-    private void addUser(String username, String password, String confirmPassword, String imagePath) {
+    public void addUser(String username, String password, String confirmPassword, String imagePath) {
         if(!password.equals(confirmPassword)) {
             ErrorHandling.showMessage("Passwords do not match", window);
             return;
@@ -51,13 +51,13 @@ public class Application {
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
-    private void deleteUser(String username) {
+    public void deleteUser(String username) {
         ErrorHandling.tryOrShowExceptionMessage(() -> data.removeUser(username), window);
 
         window.gotoWelcomePage(data.getUsers(), this::loginUser, this::addUser, this::deleteUser);
     }
 
-    private void selectMedia(Media media, User user) {
+    public void selectMedia(Media media, User user) {
         window.gotoInformationPage(media, user::isFavorite, user::addFavorite, user::removeFavorite,
                                     m -> System.out.println("Playing " + m.title),
                                    () -> window.gotoHomePage(user, data.getAllMedia(), data::searchAllMedia, this::selectMedia, this::logoutUser));

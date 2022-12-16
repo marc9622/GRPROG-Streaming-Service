@@ -1,5 +1,6 @@
 package domain;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 
@@ -7,10 +8,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import org.junit.platform.commons.util.ReflectionUtils;
 
+import data.ObjectSaving;
 import domain.MediaParsing.InvalidStringFormatException;
+import domain.User.InvalidImagePathException;
+import domain.User.InvalidPasswordException;
+import domain.User.InvalidUsernameException;
+import domain.UserSet.UserAlreadyExistsException;
+import domain.UserSet.UserDoesNotExistException;
 
 @Nested
-public class Tests {
+public class TestsDomain {
    
     @Nested
     public class TestMediaParsing {
@@ -19,7 +26,7 @@ public class Tests {
         private static final String SERIES_IMAGES_PATH = "./Data/serieforsider/";
 
         public static final Movie newTestMovie = new Movie("The Matrix", 1999, new String[] {"Action", "Sci-Fi"}, 8.7f, MOVIE_IMAGES_PATH);
-        public static final Series newTestSerie = new Series("The Office", 2005, true, 2013, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
+        public static final Series newTestSeries = new Series("The Office", 2005, true, 2013, new String[] {"Comedy"}, 8.9f, new int[] {6, 22, 25, 19, 28, 26, 26, 24, 25}, SERIES_IMAGES_PATH);
     
         public static final BiFunction<String, String, Media> parseStringToMedia = (string, imagePath) -> {
             Method method = ReflectionUtils.findMethod(MediaParsing.class, "parseStringToMedia", String.class, String.class).orElseThrow(() -> new RuntimeException("Could not find method"));
@@ -48,7 +55,7 @@ public class Tests {
     
         @Test
         void serieGeneral() throws InvalidStringFormatException {
-            Object expected = newTestSerie;
+            Object expected = newTestSeries;
             Object actual = parseStringToMedia.apply("The Office; 2005-2013; Comedy; 8.9; 1-6, 2-22, 3-25, 4-19, 5-28, 6-26, 7-26, 8-24, 9-25;", SERIES_IMAGES_PATH);
             
             assertEquals(expected, actual);
@@ -78,7 +85,7 @@ public class Tests {
             assertEquals(expected, actual);
 
             expected = SERIES_IMAGES_PATH + "The Office.jpg";
-            actual = newTestSerie.imagePath;
+            actual = newTestSeries.imagePath;
 
             assertEquals(expected, actual);
         }
@@ -189,6 +196,74 @@ public class Tests {
             assertTrue(exceptionSerie.getMessage().startsWith(expectedMessageSerie));
         }
     
+    }
+
+    @Nested
+    public class TestSerialization {
+
+        @Test
+        void movieSerialization() throws IOException, ClassNotFoundException {
+            Movie movie = TestMediaParsing.newTestMovie;
+    
+            ObjectSaving.saveToFile(movie, "test");
+    
+            Object parsedMovie = ObjectSaving.loadFromFile(Movie.class, "test");
+    
+            assertEquals(movie, parsedMovie);
+        }
+
+        @Test
+        void seriesSerialization() throws IOException, ClassNotFoundException {
+            Series series = TestMediaParsing.newTestSeries;
+    
+            ObjectSaving.saveToFile(series, "test");
+    
+            Object parsedSeries = ObjectSaving.loadFromFile(Series.class, "test");
+    
+            assertEquals(series, parsedSeries);
+        }
+
+        @Test
+        void mediaLibrarySerialization() throws IOException, ClassNotFoundException {
+            MediaLibrary mediaLibrary = new MediaLibrary();
+            mediaLibrary.add(TestMediaParsing.newTestMovie);
+            mediaLibrary.add(TestMediaParsing.newTestSeries);
+    
+            ObjectSaving.saveToFile(mediaLibrary, "test");
+    
+            Object parsedMediaLibrary = ObjectSaving.loadFromFile(MediaLibrary.class, "test");
+    
+            assertEquals(mediaLibrary, parsedMediaLibrary);
+        }
+
+        @Test
+        void userSerialization() throws IOException, ClassNotFoundException, InvalidUsernameException, InvalidPasswordException, InvalidImagePathException {
+            User user = new User("Test1", "abc123", null);
+            user.addFavorite(TestMediaParsing.newTestMovie);
+            user.addFavorite(TestMediaParsing.newTestSeries);
+    
+            ObjectSaving.saveToFile(user, "test");
+    
+            Object parsedUser = ObjectSaving.loadFromFile(User.class, "test");
+    
+            assertEquals(user, parsedUser);
+        }
+
+        @Test
+        void userSetSerialization() throws IOException, ClassNotFoundException, UserAlreadyExistsException, InvalidUsernameException, InvalidPasswordException, InvalidImagePathException, UserDoesNotExistException {
+            UserSet userSet = new UserSet();
+            userSet.addUser(new User("Test1", "abc123", null));
+            userSet.addUser(new User("Test2", "abc123", null));
+            userSet.getUser("Test1").addFavorite(TestMediaParsing.newTestMovie);
+            userSet.getUser("Test2").addFavorite(TestMediaParsing.newTestSeries);
+
+            ObjectSaving.saveToFile(userSet, "test");
+
+            Object parsedUserSet = ObjectSaving.loadFromFile(UserSet.class, "test");
+
+            assertEquals(userSet, parsedUserSet);
+        }
+
     }
 
 }

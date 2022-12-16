@@ -5,6 +5,8 @@ import java.util.Optional;
 public class ErrorHandling {
     private ErrorHandling() {}
 
+    private static boolean showErrorDialog = true;
+
     public static void tryOrShowExceptionMessage(CheckedRunnable code, ApplicationWindow window) {
         try {
             code.run();
@@ -31,7 +33,8 @@ public class ErrorHandling {
     }
 
     public static void showMessage(String message, ApplicationWindow window) {
-        window.showError(message);
+        if(showErrorDialog)
+            window.showError(message);
     }
 
     @FunctionalInterface

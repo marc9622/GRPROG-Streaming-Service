@@ -48,7 +48,7 @@ public class ObjectSaving {
      * @throws ClassNotFoundException If the file is not formatted correctly.
      * @throws ClassCastException If the object is not of the given class.
      */
-    public static <T> T loadFromFolder(Class<T> clazz, String fileName) throws IOException, ClassNotFoundException {
+    public static <T> T loadFromFile(Class<T> clazz, String fileName) throws IOException, ClassNotFoundException {
         String filePath = FOLDER + fileName + getFileExtension(clazz);
         try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))) {
             Object object = in.readObject();

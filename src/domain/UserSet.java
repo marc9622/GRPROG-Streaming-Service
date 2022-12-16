@@ -30,7 +30,7 @@ public class UserSet implements Saveable {
      * @throws IOException If an I/O error occurs.
      */
     static UserSet loadUserSet(String folderName) throws ClassNotFoundException, IOException {
-        return ObjectSaving.loadFromFolder(UserSet.class, folderName);
+        return ObjectSaving.loadFromFile(UserSet.class, folderName);
     }
 
     /** Loads a saved userset and adds its users to this userset.
@@ -97,6 +97,22 @@ public class UserSet implements Saveable {
         if(!users.removeIf(u -> u.getUsername().equals(username)))
             throw new UserDoesNotExistException("User does not exist");
         return true;
+    }
+
+    public int hashCode() {
+        return users.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+        if(obj == this)
+            return true;
+        if(!(obj instanceof UserSet))
+            return false;
+
+        UserSet other = (UserSet) obj;
+        return users.equals(other.users);
     }
 
     /** A user already exists exception. */
